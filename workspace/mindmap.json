@@ -4,46 +4,33 @@
   "color": "red",
   "children": [
     {
-      "id": "what",
-      "name": "它们是什么",
+      "id": "tradeoff",
+      "name": "性能权衡",
       "color": "orange",
-      "children": [
-        {
-          "id": "tradeoff",
-          "name": "性能权衡",
-          "color": "yellow",
-          "children": []
-        },
-        {
-          "id": "checkerboard",
-          "name": "棋盘渲染",
-          "color": "green",
-          "children": []
-        },
-        {
-          "id": "superres",
-          "name": "超分定义",
-          "color": "brown",
-          "children": []
-        }
-      ]
+      "children": []
     },
     {
-      "id": "fsr",
-      "name": "FSR技术",
+      "id": "checkerboard",
+      "name": "棋盘渲染",
       "color": "green",
+      "children": []
+    },
+    {
+      "id": "superres",
+      "name": "超分定义",
+      "color": "brown",
       "children": []
     },
     {
       "id": "dlss",
       "name": "DLSS技术",
-      "color": "brown",
+      "color": "yellow",
       "children": []
     },
     {
-      "id": "framegen",
-      "name": "插帧技术",
-      "color": "red",
+      "id": "fsr",
+      "name": "FSR技术",
+      "color": "green",
       "children": []
     }
   ]

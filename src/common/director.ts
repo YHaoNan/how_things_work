@@ -1,5 +1,5 @@
 import { View2D } from "@motion-canvas/2d";
-import { ThreadGenerator, createSignal, SimpleSignal, waitFor, all } from "@motion-canvas/core";
+import { ThreadGenerator, createSignal, SimpleSignal, waitFor, all, waitUntil } from "@motion-canvas/core";
 import { MindMapLayer } from "./mindmap";
 import { AnimLayer, Layer } from "./animLayer"; 
 import { MindMapNode } from "./structs";
@@ -8,6 +8,7 @@ import { Colors } from "./colors";
 export class Director {
     private view: View2D;
     private activeLayers: Set<Layer> = new Set();
+    private eventCounter: number = 0;
 
     constructor(view: View2D) {
         this.view = view;
@@ -50,7 +51,7 @@ export class Director {
         // Let's keep centerOn duration as is or make it part of config, but here user asked for "duration argument" for the Director functions.
         // Assuming `duration` applies to the transition (fade in/expand).
 
-        yield* waitFor(0.2); 
+        yield* waitUntil(`${nodeId} to ${LayerClass.name} ${this.nextEventCounter()}`); 
 
         // 2. Create Layer and set initial state BEFORE adding to view
         const layer = new LayerClass();
@@ -120,5 +121,9 @@ export class Director {
             layer.root.remove();
             this.activeLayers.delete(layer);
         }
+    }
+
+    nextEventCounter(): number {
+        return this.eventCounter++;
     }
 }
