@@ -45,31 +45,31 @@ export class CheckerboardLayer extends AnimLayer {
     protected on_build_ui(): void {
         const gridRows = 10;
         const gridCols = 10;
-        const cellSize = 40; // Smaller to fit
+        const cellSize = 60;
 
         // 5.1 Left Side: Full Rendering
         this.root.add(
-            <Layout x={-400} y={50}>
+            <Layout x={-450} y={50}>
                 {createGrid(this.leftGrid, () => 0.8, gridRows, gridCols, cellSize)}
                 <Circle
                     ref={this.leftBall}
-                    size={60}
+                    size={80}
                     fill={Colors.orange}
                     x={0}
                     y={0}
                 />
                 <Txt
                     text="Full Rendering"
-                    y={-250}
+                    y={-350}
                     fill={'#ffffff'}
-                    fontSize={32}
+                    fontSize={40}
                     fontFamily={'JetBrains Mono'}
                 />
                 <Txt
-                    text="100% Load"
-                    y={250}
+                    text="100% Workload"
+                    y={350}
                     fill={Colors.red}
-                    fontSize={28}
+                    fontSize={32}
                     fontFamily={'JetBrains Mono'}
                 />
             </Layout>
@@ -77,7 +77,7 @@ export class CheckerboardLayer extends AnimLayer {
 
         // 5.2 Right Side: Checkerboard
         this.root.add(
-            <Layout x={400} y={50} opacity={() => this.rightSideActive()}>
+            <Layout x={450} y={50} opacity={() => this.rightSideActive()}>
                 {createGrid(this.rightGrid, (isWhite) => {
                     const mode = this.renderMode();
                     if (mode === 0) return 0.8;
@@ -87,23 +87,23 @@ export class CheckerboardLayer extends AnimLayer {
                 }, gridRows, gridCols, cellSize)}
                  <Circle
                     ref={this.rightBall}
-                    size={60}
+                    size={80}
                     fill={Colors.orange}
                     x={0}
                     y={0}
                 />
                 <Txt
                     text="Checkerboard"
-                    y={-250}
+                    y={-350}
                     fill={'#ffffff'}
-                    fontSize={32}
+                    fontSize={40}
                     fontFamily={'JetBrains Mono'}
                 />
                 <Txt
-                    text="50% Load"
-                    y={250}
+                    text="50% Workload"
+                    y={350}
                     fill={Colors.green}
-                    fontSize={28}
+                    fontSize={32}
                     fontFamily={'JetBrains Mono'}
                 />
             </Layout>
@@ -116,18 +116,18 @@ export class CheckerboardLayer extends AnimLayer {
                     ref={this.description}
                     text="VS"
                     fill={'#ffffff'}
-                    fontSize={60}
+                    fontSize={80}
                     fontFamily={'JetBrains Mono'}
                     fontWeight={700}
-                    opacity={0} // Initially hidden
+                    opacity={1}
                 />
                 <Txt
                     ref={this.fpsText}
                     text={() => `${this.fpsSignal().toFixed(0)} FPS`}
                     x={() => this.fpsX()}
-                    y={350}
+                    y={150}
                     fill={Colors.yellow}
-                    fontSize={48}
+                    fontSize={64}
                     fontFamily={'JetBrains Mono'}
                     fontWeight={700}
                     shadowBlur={10}
@@ -158,14 +158,14 @@ export class CheckerboardLayer extends AnimLayer {
 
         function* moveBalls() {
             let t = 0;
-            const radius = 100;
+            const radius = 150;
             
             while (isPlaying) {
                 const currentFps = self.fpsSignal();
                 t += 0.02;
                 
-                // Left Ball (Fixed 10 FPS Simulation)
-                const tLeft = Math.floor(t * 10) / 10; 
+                // Left Ball (10 FPS)
+                const tLeft = Math.floor(t * 10) / 10;
                 self.leftBall().position([
                     Math.cos(tLeft * 3) * radius,
                     Math.sin(tLeft * 3) * radius
@@ -191,21 +191,31 @@ export class CheckerboardLayer extends AnimLayer {
         }
 
         function* mainTimeline() {
-            self.fpsX(-400); // Start under Left
+            self.fpsX(-450);
             self.fpsSignal(10);
             self.rightSideActive(0);
             
-            yield* waitUntil('show_checkerboard');
+            // 01:03 - 01:23: "But for players... trick?"
+            yield* waitUntil('start_checkerboard');
             
+            // 01:23: "Immediately thought of a trick... render half pixels"
+            yield* waitUntil('show_trick');
+            
+            // Show comparison
             yield* all(
-                self.fpsX(0, 1, easeInOutCubic), // Move to center
-                self.fpsSignal(30, 1, easeInOutCubic),
-                self.description().opacity(1, 1),
-                tween(1, value => {
-                    self.rightSideActive(value);
+                self.fpsX(450, 2, easeInOutCubic),
+                self.fpsSignal(30, 2, easeInOutCubic),
+                self.description().opacity(0, 1),
+                tween(2, value => {
+                    if (value > 0.3) {
+                        self.rightSideActive(map(0, 1, (value - 0.3) / 0.7));
+                    }
                 })
             );
             
+            // 01:46: "Checkerboard algorithm"
+            // 01:52: "Simple and naive"
+            // 02:03: End
             yield* waitUntil('end_checkerboard');
             
             isPlaying = false;

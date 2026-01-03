@@ -22,6 +22,8 @@ export class MindMapLayer extends BaseLayer {
         this.mindmapData = mindmapData;
     }
 
+    private edgesGroup = createRef<Node>();
+
     protected on_build_ui(): void {
         const layout = computeTreeLayout(this.mindmapData, {
             nodeWidth: this.nodeWidth,
@@ -32,7 +34,7 @@ export class MindMapLayer extends BaseLayer {
 
         // 1. Draw Edges
         this.root.add(
-            <Node>
+            <Node ref={this.edgesGroup}>
                 {layout.edges.map((e, i) => {
                     const fromNode = layout.nodes.find(n => n.id === e.from)!;
                     const toNode = layout.nodes.find(n => n.id === e.to)!;
@@ -219,7 +221,15 @@ export class MindMapLayer extends BaseLayer {
             txt.opacity(0, duration * 0.5),
 
             // 4. Change color to background
-            node.fill(Colors.background, duration, ease), 
+            node.fill(Colors.background, duration, ease),
+            
+            // 5. Fade out edges
+            this.edgesGroup().opacity(0, duration, ease),
+
+            // 6. Fade out other nodes
+            ...Array.from(this.nodeRefs.entries())
+                .filter(([nodeId]) => nodeId !== id)
+                .map(([_, ref]) => ref().opacity(0, duration, ease)),
         );
     }
 
@@ -252,6 +262,13 @@ export class MindMapLayer extends BaseLayer {
             
             // Restore color
             node.fill(originalColor, duration, ease),
+
+            // Restore edges
+            this.edgesGroup().opacity(1, duration, ease),
+
+            // Restore other nodes
+            ...Array.from(this.nodeRefs.values())
+                .map(ref => ref().opacity(1, duration, ease)),
         );
         
         node.zIndex(1);

@@ -1,223 +1,319 @@
-import { Layout, Rect, Txt, Line, Circle } from "@motion-canvas/2d";
-import { ThreadGenerator, createRef, all, waitFor, waitUntil, Vector2, easeInOutCubic, sequence, loop, createSignal } from "@motion-canvas/core";
+import { Layout, Rect, Txt, Line, Icon, Img, Circle } from "@motion-canvas/2d";
+import { ThreadGenerator, createRef, all, waitFor, waitUntil, sequence, easeOutCubic, tween, map, createSignal, any, loop } from "@motion-canvas/core";
 import { AnimLayer } from "@src/common/animLayer";
 import { Colors } from "@src/common/colors";
+import nvidiaIcon from "./assets/icon_nvidia.svg";
 
 export class DLSSLayer extends AnimLayer {
-    private lowRes = createRef<Layout>();
-    private tensorCore = createRef<Layout>();
-    private highRes = createRef<Layout>();
+    // Left Input Column
+    private inputGroup = createRef<Layout>();
+    private inputFrame = createRef<Rect>();
+    private motionVecs = createRef<Rect>();
+    private depthBuffer = createRef<Rect>();
     
-    private motionVectors = createRef<Layout>();
-    private history = createRef<Layout>();
-
-    private arrow1 = createRef<Line>();
-    private arrow2 = createRef<Line>();
-    private arrow3 = createRef<Line>();
-    private arrowOut = createRef<Line>();
-    private feedbackArrow = createRef<Line>();
+    // Bottom History
+    private historyFrame = createRef<Rect>();
     
-    // Neural Network Visualization
-    private inputNodes: Circle[] = [];
-    private hiddenNodes: Circle[] = [];
-    private outputNodes: Circle[] = [];
-    private connections = createRef<Layout>();
-    private signalPulse = createSignal(0);
+    // Center AI
+    private aiGroup = createRef<Layout>();
+    private aiModel = createRef<Layout>();
+    private tensorCores = createRef<Layout>();
+    
+    // Right Output
+    private outputFrame = createRef<Rect>();
+    
+    // Connections
+    private loopLine = createRef<Line>();
+    private nnGroup = createRef<Layout>();
+    private nnNodes: Circle[] = [];
+    private nnLines: Line[] = [];
 
+    // Signals
+    private flowProgress = createSignal(0);
+    
     protected on_build_ui(): void {
+        // 0. Neural Network Visual (Intro)
         this.root.add(
-            <Layout>
-                {/* Inputs */}
-                <Layout ref={this.lowRes} x={-500} y={0} opacity={0}>
-                    <Rect width={180} height={100} fill={Colors.red} radius={8} clip>
-                         {/* Low Res Grid Effect */}
-                        <Rect width={180} height={10} y={-45} fill={'rgba(0,0,0,0.2)'} />
-                        <Rect width={180} height={10} y={-25} fill={'rgba(0,0,0,0.2)'} />
-                        <Rect width={180} height={10} y={-5} fill={'rgba(0,0,0,0.2)'} />
-                        <Rect width={180} height={10} y={15} fill={'rgba(0,0,0,0.2)'} />
-                        <Rect width={180} height={10} y={35} fill={'rgba(0,0,0,0.2)'} />
-                    </Rect>
-                    <Txt text="低分辨率" fill={'#fff'} fontSize={24} fontFamily={'JetBrains Mono'} textAlign={'center'} />
-                </Layout>
-
-                <Layout ref={this.motionVectors} x={-500} y={-150} opacity={0}>
-                    <Rect width={180} height={80} fill={Colors.orange} radius={8} />
-                    <Txt text="运动向量" fill={'#fff'} fontSize={20} fontFamily={'JetBrains Mono'} textAlign={'center'} />
-                    {/* Visual: Arrows */}
-                    <Line points={[new Vector2(-60, 20), new Vector2(-40, -20)]} stroke={'rgba(255,255,255,0.3)'} endArrow lineWidth={2} />
-                    <Line points={[new Vector2(0, 20), new Vector2(20, -20)]} stroke={'rgba(255,255,255,0.3)'} endArrow lineWidth={2} />
-                    <Line points={[new Vector2(60, 20), new Vector2(40, -20)]} stroke={'rgba(255,255,255,0.3)'} endArrow lineWidth={2} />
-                </Layout>
-
-                <Layout ref={this.history} x={-500} y={150} opacity={0}>
-                    <Rect width={180} height={80} fill={Colors.brown} radius={8} />
-                    <Txt text="历史帧" fill={'#fff'} fontSize={20} fontFamily={'JetBrains Mono'} textAlign={'center'} />
-                     {/* Visual: Stacked frames */}
-                     <Rect width={160} height={60} stroke={'rgba(255,255,255,0.3)'} lineWidth={2} radius={4} />
-                </Layout>
-
-                {/* AI / Tensor Core - Complex Neural Net */}
-                <Layout ref={this.tensorCore} x={0} y={0} opacity={0}>
-                    <Rect width={240} height={240} fill={'#1a1a1a'} stroke={'#76b900'} lineWidth={4} radius={20} />
-                    <Txt text={'张量核心\n(AI模型)'} y={-140} fill={'#76b900'} fontSize={24} fontFamily={'JetBrains Mono'} textAlign={'center'} />
-                    
-                    <Layout ref={this.connections} />
-                    {this.buildNeuralNet()}
-                </Layout>
-
-                {/* Output */}
-                <Layout ref={this.highRes} x={500} y={0} opacity={0}>
-                    <Rect width={240} height={135} fill={Colors.yellow} radius={8} />
-                    <Txt text="高分辨率" fill={'#000'} fontSize={32} fontFamily={'JetBrains Mono'} textAlign={'center'} />
-                     {/* Shine effect */}
-                     <Rect width={20} height={200} x={-150} rotation={20} fill={'rgba(255,255,255,0.5)'}>
-                        {/* We will animate this shine */}
-                     </Rect>
-                </Layout>
-
-                {/* Arrows */}
-                <Line ref={this.arrow1} points={[new Vector2(-410, 0), new Vector2(-120, 0)]} stroke={'#fff'} lineWidth={4} endArrow opacity={0} />
-                <Line ref={this.arrow2} points={[new Vector2(-410, -150), new Vector2(-100, -100)]} stroke={'#fff'} lineWidth={4} endArrow opacity={0} />
-                <Line ref={this.arrow3} points={[new Vector2(-410, 150), new Vector2(-100, 100)]} stroke={'#fff'} lineWidth={4} endArrow opacity={0} />
-                
-                <Line ref={this.arrowOut} points={[new Vector2(120, 0), new Vector2(380, 0)]} stroke={'#fff'} lineWidth={4} endArrow opacity={0} />
-
-                {/* Feedback Loop */}
-                <Line 
-                    ref={this.feedbackArrow} 
-                    points={[
-                        new Vector2(500, 70), 
-                        new Vector2(500, 250),
-                        new Vector2(-500, 250),
-                        new Vector2(-500, 190)
-                    ]} 
-                    stroke={'#fff'} 
-                    lineWidth={2} 
-                    endArrow 
-                    lineDash={[10, 10]}
-                    opacity={0} 
-                    radius={20}
-                />
+            <Layout ref={this.nnGroup} opacity={0} scale={0} y={-50}>
+                {this.createNeuralNet(5, 4, 300, 200)}
+                <Txt text="Neural Network" fill={Colors.green} y={150} fontSize={32} fontFamily={'JetBrains Mono'} />
             </Layout>
         );
-    }
 
-    private buildNeuralNet() {
-        const layers = [3, 4, 4, 2];
-        const layerX = [-80, -30, 30, 80];
-        const spacing = 40;
-        
-        const nodes: JSX.Element[] = [];
-        const connections: JSX.Element[] = [];
+        // Layout Spacing: Input (-600), AI (0), Output (600)
 
-        // Build Nodes
-        layers.forEach((count, lIndex) => {
-            const x = layerX[lIndex];
-            const startY = -((count - 1) * spacing) / 2;
-            
-            for (let i = 0; i < count; i++) {
-                const y = startY + i * spacing;
-                const node = <Circle size={12} fill={'#555'} x={x} y={y} />;
-                nodes.push(node);
+        // 1. Input Group (Left Column)
+        this.root.add(
+            <Layout ref={this.inputGroup} x={-600} opacity={0}>
+                 {/* Low Res Frame */}
+                <Rect
+                    ref={this.inputFrame}
+                    width={200}
+                    height={100}
+                    fill={'#333'}
+                    stroke={Colors.orange}
+                    lineWidth={3}
+                    radius={8}
+                    y={-120}
+                >
+                    <Txt text="Low Res" fill={Colors.orange} fontSize={24} fontFamily={'JetBrains Mono'} />
+                </Rect>
                 
-                if (lIndex === 0) this.inputNodes.push(node as any); // Simplification: we don't need ref access really if we just animate opacity via signal
-                // Actually to animate specific nodes, we'd need refs, but let's just use a signal to animate all connections
-            }
-        });
+                {/* Motion Vecs */}
+                 <Rect
+                    ref={this.motionVecs}
+                    width={200}
+                    height={100}
+                    fill={'#333'}
+                    stroke={Colors.yellow}
+                    lineWidth={3}
+                    radius={8}
+                    y={0}
+                >
+                     <Txt text="Motion Vecs" fill={Colors.yellow} fontSize={24} fontFamily={'JetBrains Mono'} />
+                </Rect>
 
-        // Build Connections
-        layers.forEach((count, lIndex) => {
-            if (lIndex === layers.length - 1) return;
-            const nextCount = layers[lIndex + 1];
-            const x1 = layerX[lIndex];
-            const x2 = layerX[lIndex + 1];
-            const startY1 = -((count - 1) * spacing) / 2;
-            const startY2 = -((nextCount - 1) * spacing) / 2;
+                {/* Depth Buffer / Exposure */}
+                <Rect
+                    ref={this.depthBuffer}
+                    width={200}
+                    height={100}
+                    fill={'#333'}
+                    stroke={'#aaa'}
+                    lineWidth={3}
+                    radius={8}
+                    y={120}
+                >
+                     <Txt text="Depth/Exp" fill={'#aaa'} fontSize={24} fontFamily={'JetBrains Mono'} />
+                </Rect>
+            </Layout>
+        );
 
-            for (let i = 0; i < count; i++) {
-                for (let j = 0; j < nextCount; j++) {
-                    const y1 = startY1 + i * spacing;
-                    const y2 = startY2 + j * spacing;
-                    
-                    connections.push(
-                        <Line
-                            points={[new Vector2(x1, y1), new Vector2(x2, y2)]}
-                            stroke={'#76b900'}
-                            lineWidth={1}
-                            opacity={() => Math.sin(this.signalPulse() + i + j) * 0.5 + 0.5}
-                        />
-                    );
+        // 2. AI Group (Center)
+        this.root.add(
+            <Layout ref={this.aiGroup} x={0} y={0}>
+                {/* AI Model Box */}
+                <Layout ref={this.aiModel} opacity={0} scale={0}>
+                    <Rect width={300} height={200} fill={'#222'} stroke={Colors.green} lineWidth={4} radius={16} />
+                    <Txt text="AI Model" fill={Colors.green} fontSize={32} fontFamily={'JetBrains Mono'} />
+                </Layout>
+
+                {/* Tensor Cores Box (Overlay or transformation) */}
+                <Layout ref={this.tensorCores} opacity={0} scale={0}>
+                    <Rect width={300} height={200} fill={'#1a2a1a'} stroke={Colors.green} lineWidth={4} radius={16} />
+                    <Img src={nvidiaIcon} width={80} height={80} y={-40} />
+                    <Txt text="Tensor Cores" fill={Colors.green} y={40} fontSize={28} fontFamily={'JetBrains Mono'} />
+                </Layout>
+            </Layout>
+        );
+
+        // 3. Output (Right)
+        this.root.add(
+            <Rect
+                ref={this.outputFrame}
+                x={600}
+                y={0}
+                width={400}
+                height={225}
+                fill={'#333'}
+                stroke={Colors.yellow}
+                lineWidth={4}
+                radius={8}
+                opacity={0}
+            >
+                <Txt text="High Res" fill={Colors.yellow} fontSize={40} fontFamily={'JetBrains Mono'} />
+            </Rect>
+        );
+
+        // 4. History Loop
+        this.root.add(
+             <Line
+                ref={this.loopLine}
+                points={[
+                    [600, 120], // Output bottom
+                    [600, 250],
+                    [0, 250],   // Under AI
+                    [0, 110]    // AI bottom
+                ]}
+                stroke={'#555'}
+                lineWidth={4}
+                radius={40}
+                endArrow
+                arrowSize={10}
+                lineDash={[20, 20]}
+                opacity={0}
+            />
+        );
+        this.root.add(
+             <Rect
+                ref={this.historyFrame}
+                x={0}
+                y={250}
+                width={120}
+                height={67}
+                fill={'#444'}
+                stroke={'#888'}
+                lineWidth={2}
+                radius={4}
+                opacity={0}
+            >
+                 <Txt text="History" fill={'#aaa'} fontSize={20} fontFamily={'JetBrains Mono'} />
+            </Rect>
+        );
+        
+        // Arrows from Inputs to AI
+        // We need 3 arrows now
+        this.root.add(
+            <Line
+                points={[[-490, -120], [-160, -20]]} // Low Res -> AI Top-ish
+                stroke={'#444'}
+                lineWidth={2}
+                endArrow
+                arrowSize={12}
+                opacity={() => this.inputGroup().opacity()}
+                radius={20}
+            />
+        );
+        this.root.add(
+            <Line
+                points={[[-490, 0], [-160, 0]]} // Motion -> AI Mid
+                stroke={'#444'}
+                lineWidth={2}
+                endArrow
+                arrowSize={12}
+                opacity={() => this.inputGroup().opacity()}
+            />
+        );
+        this.root.add(
+             <Line
+                points={[[-490, 120], [-160, 20]]} // Depth -> AI Bottom-ish
+                stroke={'#444'}
+                lineWidth={2}
+                endArrow
+                arrowSize={12}
+                opacity={() => this.inputGroup().opacity()}
+                radius={20}
+            />
+        );
+        
+        // Arrow from AI to Output
+        this.root.add(
+             <Line
+                points={[[160, 0], [390, 0]]}
+                stroke={'#444'}
+                lineWidth={4}
+                endArrow
+                arrowSize={12}
+                opacity={() => this.outputFrame().opacity()}
+            />
+        );
+    }
+    
+    private createNeuralNet(cols: number, rows: number, width: number, height: number) {
+        const nodes = [];
+        const lines = [];
+        
+        const colSpacing = width / (cols - 1);
+        const rowSpacing = height / (rows - 1);
+        
+        for(let c=0; c<cols; c++) {
+            for(let r=0; r<rows; r++) {
+                const x = c * colSpacing - width/2;
+                const y = r * rowSpacing - height/2;
+                
+                // Lines to next col
+                if (c < cols - 1) {
+                    for(let r2=0; r2<rows; r2++) {
+                        const y2 = r2 * rowSpacing - height/2;
+                        const line = createRef<Line>();
+                        this.nnLines.push(line);
+                        lines.push(
+                            <Line
+                                ref={line}
+                                points={[[x, y], [x + colSpacing, y2]]}
+                                stroke={Colors.green}
+                                lineWidth={1}
+                                opacity={0.3}
+                            />
+                        );
+                    }
                 }
+                
+                const node = createRef<Circle>();
+                this.nnNodes.push(node);
+                nodes.push(
+                    <Circle
+                        ref={node}
+                        x={x}
+                        y={y}
+                        size={10}
+                        fill={Colors.green}
+                    />
+                );
             }
-        });
-        
-        // Add connections first so they are behind nodes
-        this.connections().add(<Layout>{connections}</Layout>);
-        
-        return <Layout>{nodes}</Layout>;
+        }
+        return [...lines, ...nodes];
     }
 
     protected *on_play(): ThreadGenerator {
-        // Continuous Pulse
+        // 02:40: DLSS Intro
+        yield* waitUntil('start_dlss');
+        
+        // Step 1: Neural Network (Machine Learning)
+        yield* all(
+            this.nnGroup().opacity(1, 0.5),
+            this.nnGroup().scale(1, 0.5, easeOutCubic)
+        );
+        
+        // Pulse NN Loop
         const self = this;
-        yield self.signalPulse(0);
-        
-        // Background task for pulse
-        const pulseTask = yield self.loop(function*() {
-            yield* self.signalPulse(10, 2);
-            yield* self.signalPulse(0, 0); // Reset to avoid large numbers? Or just linear increase
-        });
-        // Actually linear increase is better for sin wave
-        // But let's just tween back and forth for now or use loop properly
-        
-        // 1. Input Low Res
-        yield* waitUntil('dlss_step1');
-        yield* this.lowRes().opacity(1, 1);
-
-        // 2. Motion Vectors & History
-        yield* waitUntil('dlss_step2');
-        yield* all(
-            this.motionVectors().opacity(1, 1),
-            this.history().opacity(1, 1)
-        );
-
-        // 3. AI Inference
-        yield* waitUntil('dlss_step3');
-        yield* all(
-            this.tensorCore().opacity(1, 1),
-            this.arrow1().opacity(1, 1),
-            this.arrow2().opacity(1, 1),
-            this.arrow3().opacity(1, 1),
+        yield* any(
+             loop(Infinity, () => sequence(0.05, ...self.nnNodes.map(node => node().scale(1.5, 0.2).to(1, 0.2)))),
+             waitUntil('dlss_tensor_core')
         );
         
-        // Simulate "Processing" with faster pulse
-        yield* this.signalPulse(Math.PI * 4, 2);
+        // Step 2: Tensor Cores (Hardware)
+        yield* all(
+            this.nnGroup().opacity(0, 0.5),
+            this.nnGroup().scale(0, 0.5),
+            this.tensorCores().opacity(1, 0.5),
+            this.tensorCores().scale(1, 0.5, easeOutCubic)
+        );
 
+        // Step 3: AI Model (The Software/Process)
+        // 03:22: Animation of flow
+        yield* waitUntil('start_dlss_flow');
+        
+        yield* all(
+            this.tensorCores().opacity(0, 0.5),
+            this.aiModel().opacity(1, 0.5),
+            this.aiModel().scale(1, 0.5, easeOutCubic)
+        );
+        
+        // 1. Input Group (Unified)
+        yield* all(
+            this.inputGroup().opacity(1, 0.5),
+            this.inputGroup().x(-600, 0.5, easeOutCubic) // Ensure position
+        );
+        
+        // 2. History & Loop
+        yield* all(
+            this.historyFrame().opacity(1, 0.5),
+            this.loopLine().opacity(1, 0.5)
+        );
+        
+        // 3. Process
+        yield* this.aiModel().scale(1.1, 0.2).to(1, 0.2);
+        
         // 4. Output
-        yield* waitUntil('dlss_step4');
         yield* all(
-            this.arrowOut().opacity(1, 1),
-            this.highRes().opacity(1, 1)
-        );
-
-        // 5. Feedback
-        yield* waitUntil('dlss_step5');
-        yield* all(
-            this.feedbackArrow().opacity(1, 1),
-            this.feedbackArrow().lineDashOffset(-100, 2) // Flow animation
+            this.outputFrame().opacity(1, 0.5)
         );
         
-        yield* waitUntil('end_dlss');
-    }
-
-    private *loop(loopFunc: () => Generator): ThreadGenerator {
-        // Simple helper if not provided by core in this version
-        // Actually we can just spawn it
-        yield* loopFunc(); 
-        // Wait, loopFunc needs to be infinite? 
-        // For this simple pulse, I'll just let on_play manage it or ignore background loop complexity for now
-        // and just use linear tween in main timeline if possible, or spawn properly.
-        // MC's `yield* loop(duration, callback)` is for fixed loops.
-        // We will just skip complex background loop for safety and rely on signalPulse being animated in main flow if needed.
+        // 5. Loop animation (Continuous)
+        yield* any(
+            loop(Infinity, () => self.loopLine().lineDashOffset(-40, 1).to(0, 0)),
+            waitUntil('end_dlss')
+        );
     }
 }

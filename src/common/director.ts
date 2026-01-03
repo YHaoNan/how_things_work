@@ -9,6 +9,7 @@ export class Director {
     private view: View2D;
     private activeLayers: Set<Layer> = new Set();
     private eventCounter: number = 0;
+    private mindmap: MindMapLayer | null = null;
 
     constructor(view: View2D) {
         this.view = view;
@@ -31,6 +32,7 @@ export class Director {
         const processedData = mapColors(data);
         const mindmap = new MindMapLayer(processedData);
         this.addLayer(mindmap);
+        this.mindmap = mindmap;
         
         // Default behavior: Center on root node and set scale to 0.5
         const rootId = processedData.id;
@@ -83,6 +85,11 @@ export class Director {
         LayerClass: new () => AnimLayer, 
         duration: number = 0.5
     ): ThreadGenerator {
+        // Hide mindmap if exists
+        if (this.mindmap) {
+            yield* this.mindmap.root.opacity(0, duration);
+        }
+
         // 1. Create Layer
         const layer = new LayerClass();
         
@@ -107,6 +114,11 @@ export class Director {
 
         // 7. Cleanup
         this.removeLayer(layer);
+
+        // Show mindmap if exists
+        if (this.mindmap) {
+            yield* this.mindmap.root.opacity(1, duration);
+        }
     }
 
     private addLayer(layer: Layer) {

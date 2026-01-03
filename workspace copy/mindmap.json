@@ -1,0 +1,37 @@
+{
+  "id": "root",
+  "name": "超分辨率技术",
+  "color": "red",
+  "children": [
+    {
+      "id": "tradeoff",
+      "name": "性能权衡",
+      "color": "orange",
+      "children": []
+    },
+    {
+      "id": "checkerboard",
+      "name": "棋盘渲染",
+      "color": "green",
+      "children": []
+    },
+    {
+      "id": "superres",
+      "name": "超分定义",
+      "color": "brown",
+      "children": []
+    },
+    {
+      "id": "dlss",
+      "name": "DLSS技术",
+      "color": "yellow",
+      "children": []
+    },
+    {
+      "id": "fsr",
+      "name": "FSR技术",
+      "color": "green",
+      "children": []
+    }
+  ]
+}

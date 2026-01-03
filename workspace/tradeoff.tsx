@@ -1,213 +1,261 @@
-import { Layout, Rect, Circle, Line, Txt, Spline, Grid } from "@motion-canvas/2d";
-import { ThreadGenerator, createRef, all, createSignal, waitFor, map, easeInOutCubic, tween, any, waitUntil, Vector2, Color } from "@motion-canvas/core";
+import { Layout, Circle, Txt, Line, Rect } from "@motion-canvas/2d";
+import { ThreadGenerator, createRef, all, createSignal, map, easeInOutCubic, waitFor, waitUntil, any } from "@motion-canvas/core";
 import { AnimLayer } from "@src/common/animLayer";
 import { Colors } from "@src/common/colors";
 
 export class TradeoffLayer extends AnimLayer {
     private chartLayout = createRef<Layout>();
     private ballLayout = createRef<Layout>();
+    private ball = createRef<Circle>();
+    private pixelBall = createRef<Layout>();
+    private indicator = createRef<Circle>();
     
-    private chartDot = createRef<Circle>();
-    private resolutionLabel = createRef<Txt>();
-    private fpsLabel = createRef<Txt>();
-
-    // Signals
-    private currentResolution = createSignal(720); // 720 -> 1080 -> 2160
-    private currentFps = createSignal(60); // 60 -> 30 -> 10
+    // Data signals
+    // 0 = 720p (60fps), 0.5 = 1080p (30fps), 1 = 4K (10fps)
+    private progress = createSignal(0);
     
-    private ball = createRef<Layout>();
-    private ballY = createRef<Layout>();
+    // FPS Display
+    private fpsText = createRef<Txt>();
+    private resText = createRef<Txt>();
 
     protected on_build_ui(): void {
+        const axisColor = '#ffffff';
+
         // Left: Chart
         this.root.add(
-            <Layout ref={this.chartLayout} x={-400} y={0}>
-                {/* Axes */}
+            <Layout ref={this.chartLayout} x={-450} opacity={0}>
+                {/* Y Axis (Resolution) */}
                 <Line
-                    points={[new Vector2(-200, 200), new Vector2(200, 200)]}
-                    stroke={'#fff'}
+                    points={[[-300, 300], [-300, -300]]}
+                    stroke={axisColor}
                     lineWidth={4}
                     endArrow
+                    arrowSize={10}
                 />
-                <Txt text="FPS" x={220} y={200} fill={'#fff'} fontSize={24} fontFamily={'JetBrains Mono'} />
+                <Txt text="Resolution" x={-300} y={-340} fill={axisColor} fontSize={24} />
                 
-                <Line
-                    points={[new Vector2(-200, 200), new Vector2(-200, -200)]}
-                    stroke={'#fff'}
+                {/* Y Axis Ticks */}
+                {/* 720P (Bottom) */}
+                <Line points={[[-300, 250], [-290, 250]]} stroke={axisColor} lineWidth={2} />
+                <Txt text="720P" x={-340} y={250} fill={axisColor} fontSize={20} />
+                
+                {/* 1080P (Middle-ish) */}
+                <Line points={[[-300, 50], [-290, 50]]} stroke={axisColor} lineWidth={2} />
+                <Txt text="1080P" x={-340} y={50} fill={axisColor} fontSize={20} />
+                
+                {/* 4K (Top) */}
+                <Line points={[[-300, -250], [-290, -250]]} stroke={axisColor} lineWidth={2} />
+                <Txt text="4K" x={-340} y={-250} fill={axisColor} fontSize={20} />
+
+                {/* X Axis (FPS) */}
+                 <Line
+                    points={[[-300, 300], [300, 300]]}
+                    stroke={axisColor}
                     lineWidth={4}
                     endArrow
+                    arrowSize={10}
                 />
-                <Txt text="Resolution" x={-200} y={-230} fill={'#fff'} fontSize={24} fontFamily={'JetBrains Mono'} />
+                <Txt text="FPS" x={340} y={300} fill={axisColor} fontSize={24} />
 
-                {/* Curve: (FPS, Res) -> Map to (X, Y) */}
-                {/* 
-                    FPS: 0-70 -> X: -200 to 200
-                    Res: 0-2500 -> Y: 200 to -200 
+                {/* X Axis Ticks */}
+                {/* 10 FPS (Left) */}
+                <Line points={[[-250, 300], [-250, 290]]} stroke={axisColor} lineWidth={2} />
+                <Txt text="10" x={-250} y={330} fill={axisColor} fontSize={20} />
+
+                {/* 30 FPS (Middle) */}
+                <Line points={[[0, 300], [0, 290]]} stroke={axisColor} lineWidth={2} />
+                <Txt text="30" x={0} y={330} fill={axisColor} fontSize={20} />
+
+                {/* 60 FPS (Right) */}
+                <Line points={[[250, 300], [250, 290]]} stroke={axisColor} lineWidth={2} />
+                <Txt text="60" x={250} y={330} fill={axisColor} fontSize={20} />
+
+                {/* Curve: 
+                    Start (720p, 60fps) -> Bottom Right -> (250, 250)
+                    End (4K, 10fps) -> Top Left -> (-250, -250)
                 */}
-                <Spline
-                    points={[
-                        this.getChartPos(60, 720),
-                        this.getChartPos(30, 1080),
-                        this.getChartPos(10, 2160),
-                    ]}
-                    stroke={Colors.yellow}
+                <Line
+                    stroke={Colors.red}
                     lineWidth={4}
-                    smoothness={0.5}
-                />
-
-                <Circle
-                    ref={this.chartDot}
-                    size={20}
-                    fill={Colors.red}
-                    position={() => this.getChartPos(this.currentFps(), this.currentResolution())}
+                    points={() => {
+                        const points = [];
+                        for(let i=0; i<=20; i++) {
+                            const p = i/20;
+                            // p=0: 720p (250 Y), 60fps (250 X)
+                            // p=1: 4K (-250 Y), 10fps (-250 X)
+                            
+                            // Let's use a standard inverse curve y = 1/x type shape
+                            // Map p to X: 250 -> -250
+                            const x = map(250, -250, p);
+                            
+                            // Map p to Y: 250 -> -250. 
+                            // Linear would be straight line.
+                            // We want "Higher Res costs MORE FPS" or "Lower Res gives MORE FPS"
+                            // The curve usually bows towards origin (convex) or away (concave)?
+                            // (High FPS, Low Res) to (Low FPS, High Res).
+                            // A typical tradeoff curve (Pareto frontier) is usually convex to origin.
+                            // Let's just use a power function to make it look nice.
+                            // Y changes slowly at first then fast? Or X changes fast then slow?
+                            
+                            // Let's try simple power on the interpolation factor
+                            // x = linear
+                            // y = power
+                            
+                            // Using a slight curve
+                            const y = map(250, -250, Math.pow(p, 0.8));
+                            
+                            points.push([x, y]);
+                        }
+                        return points;
+                    }}
                 />
                 
-                <Txt
-                    ref={this.resolutionLabel}
-                    text={() => `${this.currentResolution().toFixed(0)}P`}
-                    x={() => this.getChartPos(this.currentFps(), this.currentResolution()).x}
-                    y={() => this.getChartPos(this.currentFps(), this.currentResolution()).y - 40}
-                    fill={'#fff'}
-                    fontSize={24}
-                    fontFamily={'JetBrains Mono'}
+                {/* Indicator Point */}
+                <Circle
+                    ref={this.indicator}
+                    size={20}
+                    fill={Colors.yellow}
+                    position={() => {
+                        const p = this.progress();
+                        const x = map(250, -250, p);
+                        const y = map(250, -250, Math.pow(p, 0.8));
+                        return [x, y];
+                    }}
                 />
             </Layout>
         );
 
-        // Right: Ball & Info
+        // Right: Ball Demo
         this.root.add(
-            <Layout ref={this.ballLayout} x={400} y={0}>
+            <Layout ref={this.ballLayout} x={450} opacity={0}>
                 <Txt
-                    text={() => `FPS: ${this.currentFps().toFixed(0)}`}
-                    y={-250}
-                    fill={Colors.green}
+                    ref={this.resText}
+                    text={() => {
+                        const p = this.progress();
+                        if (p < 0.3) return "720P";
+                        if (p < 0.8) return "1080P";
+                        return "4K";
+                    }}
+                    y={-200}
+                    fill={Colors.yellow}
                     fontSize={48}
                     fontFamily={'JetBrains Mono'}
                 />
                  <Txt
-                    text={() => `RES: ${this.currentResolution().toFixed(0)}P`}
-                    y={-180}
-                    fill={Colors.yellow}
+                    ref={this.fpsText}
+                    text={() => {
+                        const p = this.progress();
+                        // Map progress to FPS: 0 -> 60, 1 -> 10
+                        // Linear map is fine for display
+                        const fps = map(60, 10, p);
+                        return `${fps.toFixed(0)} FPS`;
+                    }}
+                    y={-140}
+                    fill={Colors.green}
                     fontSize={32}
                     fontFamily={'JetBrains Mono'}
                 />
 
-                <Layout ref={this.ballY}>
-                    <Layout ref={this.ball}>
-                         {/* Pixel Ball Construction */}
-                        {this.createPixelBall()}
-                    </Layout>
+                {/* Smooth Ball */}
+                <Circle
+                    ref={this.ball}
+                    size={100}
+                    fill={Colors.orange}
+                    opacity={() => this.progress() > 0.6 ? 1 : 0} // Show when high res
+                />
+
+                {/* Pixel Ball (Layout of Rects) */}
+                <Layout
+                    ref={this.pixelBall}
+                    opacity={() => this.progress() > 0.6 ? 0 : 1} // Show when low res
+                >
+                    {this.createPixelCircle(100, Colors.orange)}
                 </Layout>
             </Layout>
         );
     }
 
-    private getChartPos(fps: number, res: number): Vector2 {
-        // FPS: 0 at -200, 70 at 200 -> Range 70
-        // Res: 0 at 200, 2500 at -200 -> Range 2500
-        const x = map(-200, 200, fps / 70);
-        const y = map(200, -200, res / 2500);
-        return new Vector2(x, y);
-    }
-
-    private createPixelBall() {
-        const radius = 140 / 2;
-        const maxResolution = 30; // Max blocks in one dimension
-        
-        return (
-            <Layout>
-                {/* High Res Representation - Smooth Circle */}
-                <Circle
-                    size={140}
-                    fill={Colors.orange}
-                    opacity={() => map(0, 1, (this.currentResolution() - 720) / (2160 - 720))}
-                />
-                
-                {/* Low Res Representation - Dynamic Grid */}
-                <Layout
-                     opacity={() => map(1, 0, (this.currentResolution() - 720) / (2160 - 720))}
-                >
-                    {/* We generate a grid of rectangles. 
-                        As resolution changes, we ideally want more blocks.
-                        But re-rendering DOM is expensive/complex in on_play signal.
-                        Instead, let's create a fixed high-res grid and scale/mask it? 
-                        Or just use a fixed 'pixelated' look that doesn't change resolution 
-                        but fades out as the smooth circle fades in. 
-                        User wants "approximated ball" not just a square.
-                    */}
-                    
-                    {Array.from({length: 100}).map((_, i) => {
-                        // 10x10 grid
-                        const col = i % 10;
-                        const row = Math.floor(i / 10);
-                        const x = (col - 4.5) * 14;
-                        const y = (row - 4.5) * 14;
-                        
-                        // Check if inside circle
-                        const dist = Math.sqrt(x*x + y*y);
-                        if (dist > radius) return null;
-                        
-                        return (
-                            <Rect
-                                width={12}
-                                height={12}
-                                x={x}
-                                y={y}
-                                fill={Colors.orange}
-                                radius={2} // Slight rounding
-                            />
-                        );
-                    })}
-                </Layout>
-            </Layout>
-        )
+    private createPixelCircle(size: number, color: string) {
+        const gridSize = 8;
+        const cellSize = size / gridSize;
+        const rects = [];
+        for(let y=0; y<gridSize; y++) {
+            for(let x=0; x<gridSize; x++) {
+                const cx = (x - gridSize/2 + 0.5);
+                const cy = (y - gridSize/2 + 0.5);
+                const dist = Math.sqrt(cx*cx + cy*cy);
+                if (dist < gridSize/2 - 0.5) {
+                    rects.push(
+                        <Rect
+                            width={cellSize}
+                            height={cellSize}
+                            x={cx * cellSize}
+                            y={cy * cellSize}
+                            fill={color}
+                        />
+                    );
+                }
+            }
+        }
+        return rects;
     }
 
     protected *on_play(): ThreadGenerator {
-        // Start Loop for Bouncing Ball
-        const self = this;
-        let isRunning = true;
+        // Initial state
+        this.progress(0);
+        
+        // Appear
+        yield* all(
+            this.chartLayout().opacity(1, 1),
+            this.ballLayout().opacity(1, 1)
+        );
 
+        // Start bouncing loop
+        const self = this;
+        let isPlaying = true;
+        
         function* bounceLoop() {
             let t = 0;
-            while(isRunning) {
-                const fps = self.currentFps();
-                // Avoid infinite loop if fps is 0 or very low, though logic ensures >=10
-                const dt = 1 / Math.max(1, fps); 
+            const radius = 150; 
+            
+            while(isPlaying) {
+                const p = self.progress();
+                const fps = map(60, 10, p);
+                const dt = 1 / fps; 
+                const y = Math.sin(t) * radius;
                 
-                // Calculate position at time t
-                // We use a separate time accumulator for the physics to keep it consistent
-                // irrespective of frame rate, but here we update the VIEW only every dt.
+                self.ball().y(y);
+                self.pixelBall().y(y);
                 
-                // Simple bounce:
-                const y = Math.abs(Math.sin(t * 3)) * -200 + 100;
-                self.ballY().y(y);
+                const tStep = 3 * dt; 
+                t += tStep;
                 
-                t += dt;
                 yield* waitFor(dt);
             }
         }
 
-        function* mainTimeline() {
-            yield* waitUntil('to_1080p');
-            yield* all(
-                self.currentFps(30, 1, easeInOutCubic),
-                self.currentResolution(1080, 1, easeInOutCubic),
-            );
-
-            yield* waitUntil('to_4k');
-            yield* all(
-                self.currentFps(10, 1, easeInOutCubic),
-                self.currentResolution(2160, 1, easeInOutCubic),
-            );
-            
-            yield* waitUntil('end_tradeoff');
-            isRunning = false;
-        }
-
         yield* any(
             bounceLoop(),
-            mainTimeline()
+            this.scriptSequence()
         );
+        
+        isPlaying = false;
+    }
+
+    private *scriptSequence(): ThreadGenerator {
+        // 00:23 - 00:30: Intro to Dev scenario
+        yield* waitUntil('start_tradeoff'); 
+        
+        // 00:40: "1080P output is limit"
+        yield* waitUntil('switch_1080p'); 
+        // Move to 1080p (Progress 0.4 approx for 1080p/30fps range)
+        yield* this.progress(0.4, 2, easeInOutCubic); 
+        
+        // 00:50 approx: Show move to 4K
+        yield* waitUntil('switch_4k');
+        // Move to 4K (Progress 1)
+        yield* this.progress(1, 4, easeInOutCubic); 
+        
+        yield* waitUntil('end_tradeoff'); 
     }
 }

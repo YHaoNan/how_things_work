@@ -1,166 +1,205 @@
-import { Layout, Rect, Txt, Line, Circle } from "@motion-canvas/2d";
-import { ThreadGenerator, createRef, all, waitFor, waitUntil, Vector2, easeInOutCubic, createSignal } from "@motion-canvas/core";
+import { Layout, Rect, Txt, Line, Icon, Img, Circle } from "@motion-canvas/2d";
+import { ThreadGenerator, createRef, all, waitFor, waitUntil, sequence, easeOutCubic, tween, map, createSignal, loop, any } from "@motion-canvas/core";
 import { AnimLayer } from "@src/common/animLayer";
 import { Colors } from "@src/common/colors";
 
 export class FSRLayer extends AnimLayer {
-    private lowRes = createRef<Layout>();
-    private shader = createRef<Layout>();
-    private highRes = createRef<Layout>();
+    // Left Input Column
+    private inputGroup = createRef<Layout>();
+    private inputFrame = createRef<Rect>();
+    private motionVecs = createRef<Rect>();
+    private depthBuffer = createRef<Rect>();
     
-    private motionVectors = createRef<Layout>();
-    private history = createRef<Layout>();
-
-    private arrow1 = createRef<Line>();
-    private arrow2 = createRef<Line>();
-    private arrow3 = createRef<Line>();
-    private arrowOut = createRef<Line>();
-    private feedbackArrow = createRef<Line>();
+    // Center Algorithm
+    private algorithm = createRef<Layout>();
+    private algoRect = createRef<Rect>();
     
-    // Shader Visuals
-    private scanLine = createRef<Rect>();
-    private codeLines = createRef<Layout>();
+    // Right Output
+    private outputFrame = createRef<Rect>();
+    
+    // Flow Group (For moving everything together)
+    private flowGroup = createRef<Layout>();
+    
+    // Comparison
+    private comparisonGroup = createRef<Layout>();
+    private dlssGroup = createRef<Layout>();
+    private fsrGroup = createRef<Layout>();
 
     protected on_build_ui(): void {
+        // Wrap flow elements in a group
         this.root.add(
-            <Layout>
-                {/* Inputs */}
-                <Layout ref={this.lowRes} x={-500} y={0} opacity={0}>
-                    <Rect width={180} height={100} fill={Colors.red} radius={8} clip>
-                        {/* Low Res Grid Effect */}
-                        <Rect width={180} height={10} y={-45} fill={'rgba(0,0,0,0.2)'} />
-                        <Rect width={180} height={10} y={-25} fill={'rgba(0,0,0,0.2)'} />
-                        <Rect width={180} height={10} y={-5} fill={'rgba(0,0,0,0.2)'} />
-                        <Rect width={180} height={10} y={15} fill={'rgba(0,0,0,0.2)'} />
-                        <Rect width={180} height={10} y={35} fill={'rgba(0,0,0,0.2)'} />
+            <Layout ref={this.flowGroup}>
+                {/* 1. Input Group (Left Column) */}
+                <Layout ref={this.inputGroup} x={-600} opacity={0}>
+                     {/* Low Res Frame */}
+                    <Rect
+                        ref={this.inputFrame}
+                        width={200}
+                        height={100}
+                        fill={'#333'}
+                        stroke={Colors.orange}
+                        lineWidth={3}
+                        radius={8}
+                        y={-120}
+                    >
+                        <Txt text="Low Res" fill={Colors.orange} fontSize={24} fontFamily={'JetBrains Mono'} />
                     </Rect>
-                    <Txt text="低分辨率" fill={'#fff'} fontSize={24} fontFamily={'JetBrains Mono'} textAlign={'center'} />
-                </Layout>
-
-                <Layout ref={this.motionVectors} x={-500} y={-150} opacity={0}>
-                    <Rect width={180} height={80} fill={Colors.orange} radius={8} />
-                    <Txt text="运动向量" fill={'#fff'} fontSize={20} fontFamily={'JetBrains Mono'} textAlign={'center'} />
-                     {/* Visual: Arrows */}
-                    <Line points={[new Vector2(-60, 20), new Vector2(-40, -20)]} stroke={'rgba(255,255,255,0.3)'} endArrow lineWidth={2} />
-                    <Line points={[new Vector2(0, 20), new Vector2(20, -20)]} stroke={'rgba(255,255,255,0.3)'} endArrow lineWidth={2} />
-                    <Line points={[new Vector2(60, 20), new Vector2(40, -20)]} stroke={'rgba(255,255,255,0.3)'} endArrow lineWidth={2} />
-                </Layout>
-
-                <Layout ref={this.history} x={-500} y={150} opacity={0}>
-                    <Rect width={180} height={80} fill={Colors.brown} radius={8} />
-                    <Txt text="历史帧" fill={'#fff'} fontSize={20} fontFamily={'JetBrains Mono'} textAlign={'center'} />
-                     {/* Visual: Stacked frames */}
-                     <Rect width={160} height={60} stroke={'rgba(255,255,255,0.3)'} lineWidth={2} radius={4} />
-                </Layout>
-
-                {/* Shader / Software - "Code" or "Scan" Style */}
-                <Layout ref={this.shader} x={0} y={0} opacity={0}>
-                    <Rect width={240} height={240} fill={'#1a1a1a'} stroke={Colors.red} lineWidth={4} radius={20} clip />
-                    <Txt text={'着色器算法\n(手工打造)'} y={-140} fill={Colors.red} fontSize={24} fontFamily={'JetBrains Mono'} textAlign={'center'} />
                     
-                    {/* Visual: Scrolling Code or Logic Gates */}
-                    <Layout ref={this.codeLines} y={-60}>
-                         {Array.from({length: 8}).map((_, i) => (
-                             <Rect 
-                                width={180} 
-                                height={8} 
-                                y={i * 20} 
-                                fill={'#333'} 
-                                radius={4} 
-                                x={Math.random() * 40 - 20} // Random indentation
-                             />
-                         ))}
-                    </Layout>
+                    {/* Motion Vecs */}
+                     <Rect
+                        ref={this.motionVecs}
+                        width={200}
+                        height={100}
+                        fill={'#333'}
+                        stroke={Colors.yellow}
+                        lineWidth={3}
+                        radius={8}
+                        y={0}
+                    >
+                         <Txt text="Motion Vecs" fill={Colors.yellow} fontSize={24} fontFamily={'JetBrains Mono'} />
+                    </Rect>
 
-                    {/* Visual: Scan Line */}
-                    <Rect 
-                        ref={this.scanLine}
-                        width={240} 
-                        height={4} 
-                        fill={Colors.red} 
-                        y={-100} 
-                        opacity={0}
-                        shadowBlur={10}
-                        shadowColor={Colors.red}
-                    />
+                    {/* Depth Buffer / Exposure */}
+                    <Rect
+                        ref={this.depthBuffer}
+                        width={200}
+                        height={100}
+                        fill={'#333'}
+                        stroke={'#aaa'}
+                        lineWidth={3}
+                        radius={8}
+                        y={120}
+                    >
+                         <Txt text="Depth/Exp" fill={'#aaa'} fontSize={24} fontFamily={'JetBrains Mono'} />
+                    </Rect>
                 </Layout>
 
-                {/* Output */}
-                <Layout ref={this.highRes} x={500} y={0} opacity={0}>
-                    <Rect width={240} height={135} fill={Colors.yellow} radius={8} />
-                    <Txt text="高分辨率" fill={'#000'} fontSize={32} fontFamily={'JetBrains Mono'} textAlign={'center'} />
-                     {/* Edge sharpening effect (visualized as border glow maybe) */}
-                     <Rect width={240} height={135} stroke={'#fff'} lineWidth={0} radius={8} />
+                {/* 2. Algorithm (Center) */}
+                <Layout ref={this.algorithm} x={0} y={0} opacity={0} scale={0}>
+                    <Rect ref={this.algoRect} width={200} height={150} fill={'#222'} stroke={Colors.red} lineWidth={4} radius={16} />
+                    <Txt text="Algorithm" fill={Colors.red} y={-30} fontSize={28} fontFamily={'JetBrains Mono'} />
+                    <Txt text="(Shader)" fill={'#aaa'} y={10} fontSize={20} fontFamily={'JetBrains Mono'} />
+                    <Txt text="Open Source" fill={'#aaa'} y={40} fontSize={16} fontFamily={'JetBrains Mono'} />
                 </Layout>
 
-                {/* Arrows */}
-                <Line ref={this.arrow1} points={[new Vector2(-410, 0), new Vector2(-120, 0)]} stroke={'#fff'} lineWidth={4} endArrow opacity={0} />
-                <Line ref={this.arrow2} points={[new Vector2(-410, -150), new Vector2(-100, -100)]} stroke={'#fff'} lineWidth={4} endArrow opacity={0} />
-                <Line ref={this.arrow3} points={[new Vector2(-410, 150), new Vector2(-100, 100)]} stroke={'#fff'} lineWidth={4} endArrow opacity={0} />
+                {/* 3. Output (Right) */}
+                <Rect
+                    ref={this.outputFrame}
+                    x={600}
+                    y={0}
+                    width={400}
+                    height={225}
+                    fill={'#333'}
+                    stroke={Colors.red}
+                    lineWidth={4}
+                    radius={8}
+                    opacity={0}
+                >
+                    <Txt text="High Res" fill={Colors.red} fontSize={40} fontFamily={'JetBrains Mono'} />
+                </Rect>
                 
-                <Line ref={this.arrowOut} points={[new Vector2(120, 0), new Vector2(380, 0)]} stroke={'#fff'} lineWidth={4} endArrow opacity={0} />
-
-                {/* Feedback Loop */}
-                <Line 
-                    ref={this.feedbackArrow} 
-                    points={[
-                        new Vector2(500, 70), 
-                        new Vector2(500, 250),
-                        new Vector2(-500, 250),
-                        new Vector2(-500, 190)
-                    ]} 
-                    stroke={'#fff'} 
-                    lineWidth={2} 
-                    endArrow 
-                    lineDash={[10, 10]}
-                    opacity={0} 
+                {/* Connecting Lines */}
+                <Line
+                    points={[[-490, -120], [-120, -20]]}
+                    stroke={'#444'}
+                    lineWidth={2}
+                    endArrow
+                    arrowSize={12}
+                    opacity={() => this.inputGroup().opacity()}
                     radius={20}
                 />
+                <Line
+                    points={[[-490, 0], [-120, 0]]}
+                    stroke={'#444'}
+                    lineWidth={2}
+                    endArrow
+                    arrowSize={12}
+                    opacity={() => this.inputGroup().opacity()}
+                />
+                <Line
+                    points={[[-490, 120], [-120, 20]]}
+                    stroke={'#444'}
+                    lineWidth={2}
+                    endArrow
+                    arrowSize={12}
+                    opacity={() => this.inputGroup().opacity()}
+                    radius={20}
+                />
+                <Line
+                    points={[[120, 0], [390, 0]]}
+                    stroke={'#444'}
+                    lineWidth={4}
+                    endArrow
+                    arrowSize={12}
+                    opacity={() => this.outputFrame().opacity()}
+                />
+            </Layout>
+        );
+
+        // Part 2: Comparison Table (Bottom)
+        this.root.add(
+            <Layout ref={this.comparisonGroup} y={250}>
+                <Layout ref={this.dlssGroup} x={-300} opacity={0}>
+                    <Txt text="DLSS" fill={Colors.green} fontSize={40} fontFamily={'JetBrains Mono'} y={-50} />
+                    <Txt text="Best Quality" fill={'#fff'} fontSize={24} fontFamily={'JetBrains Mono'} y={0} />
+                    <Txt text="Hardware Locked" fill={'#888'} fontSize={24} fontFamily={'JetBrains Mono'} y={40} />
+                </Layout>
+                
+                <Layout ref={this.fsrGroup} x={300} opacity={0}>
+                    <Txt text="FSR" fill={Colors.red} fontSize={40} fontFamily={'JetBrains Mono'} y={-50} />
+                    <Txt text="High Compatibility" fill={'#fff'} fontSize={24} fontFamily={'JetBrains Mono'} y={0} />
+                    <Txt text="Open Source" fill={'#888'} fontSize={24} fontFamily={'JetBrains Mono'} y={40} />
+                </Layout>
             </Layout>
         );
     }
 
     protected *on_play(): ThreadGenerator {
-        // 1. Input Low Res
-        yield* waitUntil('fsr_step1');
-        yield* this.lowRes().opacity(1, 1);
-
-        // 2. Motion Vectors & History
-        yield* waitUntil('fsr_step2');
+        // 03:26: DLSS disadvantage (High cost/Hardware locked)
+        // 03:38: FSR Intro
+        yield* waitUntil('start_fsr');
+        
+        // 03:42: "Rule based... Hand crafted... Low cost"
         yield* all(
-            this.motionVectors().opacity(1, 1),
-            this.history().opacity(1, 1)
+            this.inputGroup().opacity(1, 1),
+            this.algorithm().opacity(1, 1),
+            this.algorithm().scale(1, 1, easeOutCubic),
+            this.outputFrame().opacity(1, 1)
         );
 
-        // 3. Algorithm Inference
-        yield* waitUntil('fsr_step3');
+        // Animation for Algorithm Box (Pulse)
+        const self = this;
+        
+        // Run flow animation until comparison event
+        yield* any(
+             loop(Infinity, () => self.algoRect().lineWidth(4, 1).to(8, 1)),
+             waitUntil('fsr_comparison')
+        );
+
+        // 04:00: Comparison Summary
+        // Move entire flow group up and scale down
         yield* all(
-            this.shader().opacity(1, 1),
-            this.arrow1().opacity(1, 1),
-            this.arrow2().opacity(1, 1),
-            this.arrow3().opacity(1, 1),
+            this.flowGroup().y(-200, 1, easeOutCubic),
+            this.flowGroup().scale(0.7, 1, easeOutCubic)
+        );
+
+        // Show Comparison
+        yield* waitUntil('show_comparison_details');
+        
+        yield* all(
+            this.dlssGroup().opacity(1, 1),
+            this.dlssGroup().y(100, 1, easeOutCubic)
         );
         
-        // Scan Animation
-        yield* this.scanLine().opacity(1, 0.2);
-        yield* this.scanLine().y(100, 1, easeInOutCubic);
-        yield* this.scanLine().opacity(0, 0.2);
-        yield* this.scanLine().y(-100, 0);
-
-        // 4. Output
-        yield* waitUntil('fsr_step4');
-        yield* all(
-            this.arrowOut().opacity(1, 1),
-            this.highRes().opacity(1, 1)
-        );
-
-        // 5. Feedback
-        yield* waitUntil('fsr_step5');
-        yield* all(
-             this.feedbackArrow().opacity(1, 1),
-             this.feedbackArrow().lineDashOffset(-100, 2)
-        );
+        yield* waitFor(0.5);
         
+        yield* waitUntil('show_fsr_comparison');
+
+        yield* all(
+            this.fsrGroup().opacity(1, 1),
+            this.fsrGroup().y(100, 1, easeOutCubic)
+        );
+
         yield* waitUntil('end_fsr');
     }
 }

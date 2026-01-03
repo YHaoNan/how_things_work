@@ -3,111 +3,107 @@
   "timeEvents": [
     {
       "name": "tradeoff to TradeoffLayer 0",
-      "targetTime": 6.5
+      "targetTime": 30.299999999999997
     },
     {
-      "name": "to_1080p",
-      "targetTime": 10.09516711800564
+      "name": "start_tradeoff",
+      "targetTime": 33.67448965202733
     },
     {
-      "name": "to_4k",
-      "targetTime": 13.41543871951739
+      "name": "switch_1080p",
+      "targetTime": 38.22149341554264
+    },
+    {
+      "name": "switch_4k",
+      "targetTime": 44.318793510138846
     },
     {
       "name": "end_tradeoff",
-      "targetTime": 16.75365835837593
+      "targetTime": 61.96448017399532
     },
     {
       "name": "checkerboard to CheckerboardLayer 1",
-      "targetTime": 20.954239665878546
+      "targetTime": 82.17607027524053
     },
     {
-      "name": "show_checkerboard",
-      "targetTime": 25.070406443139802
+      "name": "start_checkerboard",
+      "targetTime": 88.12843202654064
+    },
+    {
+      "name": "show_trick",
+      "targetTime": 91.59814568308687
     },
     {
       "name": "end_checkerboard",
-      "targetTime": 28.47325178556285
+      "targetTime": 120.40548328397114
     },
     {
       "name": "superres to SuperResLayer 2",
-      "targetTime": 31.47325178556285
+      "targetTime": 143.66847777918025
     },
     {
-      "name": "show_low_res",
-      "targetTime": 34.77892566286609
+      "name": "step1_render",
+      "targetTime": 145.26847777918027
     },
     {
-      "name": "show_inputs",
-      "targetTime": 37.06307809616213
+      "name": "step2_data",
+      "targetTime": 151.5197843008448
     },
     {
-      "name": "process",
-      "targetTime": 39.43734648968947
-    },
-    {
-      "name": "show_output",
-      "targetTime": 41.43734648968947
+      "name": "step3_output",
+      "targetTime": 161.25686769817835
     },
     {
       "name": "end_superres",
-      "targetTime": 43.55448649255683
+      "targetTime": 166.33617112710468
     },
     {
       "name": "dlss to DLSSLayer 3",
-      "targetTime": 46.573866325570734
+      "targetTime": 172.02632100186764
     },
     {
-      "name": "dlss_step1",
-      "targetTime": 48.980100879799664
+      "name": "start_dlss",
+      "targetTime": 174.7124670660475
     },
     {
-      "name": "dlss_step2",
-      "targetTime": 50.55770175447114
+      "name": "dlss_tensor_core",
+      "targetTime": 190.97947054895565
     },
     {
-      "name": "dlss_step3",
-      "targetTime": 52.14733598069827
-    },
-    {
-      "name": "dlss_step4",
-      "targetTime": 55.14733598069827
-    },
-    {
-      "name": "dlss_step5",
-      "targetTime": 56.14733598069827
+      "name": "start_dlss_flow",
+      "targetTime": 195.00164380412716
     },
     {
       "name": "end_dlss",
-      "targetTime": 58.14733598069827
+      "targetTime": 217.73297605956503
     },
     {
       "name": "fsr to FSRLayer 4",
-      "targetTime": 61.14733598069827
+      "targetTime": 220.73297605956503
     },
     {
-      "name": "fsr_step1",
-      "targetTime": 62.91851793348975
+      "name": "start_fsr",
+      "targetTime": 222.36414729188846
     },
     {
-      "name": "fsr_step2",
-      "targetTime": 64.42465788971415
+      "name": "fsr_comparison",
+      "targetTime": 239.2010966368452
     },
     {
-      "name": "fsr_step3",
-      "targetTime": 65.74674695276605
+      "name": "show_comparison_details",
+      "targetTime": 242.4863493664589
     },
     {
-      "name": "fsr_step4",
-      "targetTime": 68.14674695276605
-    },
-    {
-      "name": "fsr_step5",
-      "targetTime": 69.14674695276605
+      "name": "show_fsr_comparison",
+      "targetTime": 249.29429169386623
     },
     {
       "name": "end_fsr",
-      "targetTime": 71.14674695276605
+      "targetTime": 259.7068715648675
+    },
+    {
+      "name": "more_knowledge",
+      "targetTime": 283.1006219153803
     }
   ],
   "seed": 3501867846
