@@ -1,5 +1,5 @@
 import {makeProject} from '@motion-canvas/core';
-import {audio} from '@workspace/program';
+import {audio} from '@ws/program';
 
 import intro from './scenes/intro?scene';
 import outro from './scenes/outro?scene';

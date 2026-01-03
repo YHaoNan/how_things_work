@@ -87,6 +87,7 @@ export default defineConfig({
     alias: {
       '@src': path.resolve(__dirname, './src'),
       '@workspace': path.resolve(__dirname, './workspace'),
+      '@ws': path.resolve(__dirname, './workspace'),
     },
   },
   plugins: [

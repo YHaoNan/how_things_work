@@ -20,6 +20,9 @@ export class IntroLayer extends AnimLayer {
                     opacity={0}
                     loop={true}
                     start={0}
+                    smoothing={false}
+                    alpha={1}
+                    playbackRate={1}
                 />
                 <Layout ref={this.termGroup} />
                 <Txt
@@ -47,11 +50,19 @@ export class IntroLayer extends AnimLayer {
         // SRT: 00:02 - 00:08 "DLSS、FSR等术语暴风般的出现在我的推荐视频中"
         
         const terms = ["DLSS", "FSR", "Super Resolution", "Upscaling", "4K", "60FPS"];
+        // Fixed positions to avoid overlapping
+        const fixedPositions = [
+            { x: -400, y: -200 }, // DLSS
+            { x: 400, y: -200 },  // FSR
+            { x: -500, y: 0 },    // Super Resolution
+            { x: 500, y: 0 },     // Upscaling
+            { x: -400, y: 200 },  // 4K
+            { x: 400, y: 200 }    // 60FPS
+        ];
         // Spread 6 terms over ~6 seconds
-        yield* sequence(0.8, ...terms.map(term => {
+        yield* sequence(0.8, ...terms.map((term, index) => {
             const txt = createRef<Txt>();
-            const x = (Math.random() - 0.5) * 1200;
-            const y = (Math.random() - 0.5) * 600;
+            const { x, y } = fixedPositions[index];
             const fontSize = 40 + Math.random() * 40;
             
             this.termGroup().add(

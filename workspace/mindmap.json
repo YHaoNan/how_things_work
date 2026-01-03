@@ -5,7 +5,7 @@
   "children": [
     {
       "id": "tradeoff",
-      "name": "性能权衡",
+      "name": "帧率&分辨率的矛盾",
       "color": "orange",
       "children": []
     },
@@ -17,7 +17,7 @@
     },
     {
       "id": "superres",
-      "name": "超分定义",
+      "name": "超分算法",
       "color": "brown",
       "children": []
     },
