@@ -1,35 +1,23 @@
 {
   "id": "root",
-  "name": "超分辨率技术",
+  "name": "LLM进化",
   "color": "red",
   "children": [
     {
-      "id": "tradeoff",
-      "name": "帧率&分辨率的矛盾",
+      "id": "chat",
+      "name": "Chat能力",
       "color": "orange",
       "children": []
     },
     {
-      "id": "checkerboard",
-      "name": "棋盘渲染",
-      "color": "green",
-      "children": []
-    },
-    {
-      "id": "superres",
-      "name": "超分算法",
-      "color": "brown",
-      "children": []
-    },
-    {
-      "id": "dlss",
-      "name": "DLSS技术",
+      "id": "think",
+      "name": "思考能力",
       "color": "yellow",
       "children": []
     },
     {
-      "id": "fsr",
-      "name": "FSR技术",
+      "id": "agent",
+      "name": "Agent能力",
       "color": "green",
       "children": []
     }

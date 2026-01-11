@@ -1,44 +1,31 @@
 import { ThreadGenerator, waitFor } from "@motion-canvas/core";
 import { Director } from "@src/common/director";
 import mindMapData from "./mindmap.json";
-import audio from './audio.wav';
-import { IntroLayer } from "./intro";
-import { TradeoffLayer } from "./tradeoff";
-import { CheckerboardLayer } from "./checkerboard";
-import { SuperResLayer } from "./superres";
-import { DLSSLayer } from "./dlss";
-import { FSRLayer } from "./fsr";
-import { ConclusionLayer } from "./conclusion";
+import { IntroNextTokenLayer } from "./intro_next_token";
+import { ChatLayer } from "./chat";
+import { ThinkingLayer } from "./thinking";
+import { AgentLayer } from "./agent";
+import audioData from "./audio.mp3";
 
-export { audio };
+export const audio = audioData;
 
 export function* program(director: Director): ThreadGenerator {
     const mindmap = director.useMindMap(mindMapData);
-
-    // 1. Intro Animation
-    yield* director.playLayer(IntroLayer);
     
-    // 2. Mindmap Entry
+    // Initial presentation (Next Token Prediction -> Evolution)
+    yield* director.playLayer(IntroNextTokenLayer);
+
     yield* waitFor(1);
+    
+    // Transition to MindMap
     yield* mindmap.scale(2, 2);
-    
-    // 3. Tradeoff
-    yield* director.centerThenEnter(mindmap, 'tradeoff', TradeoffLayer);
-    
-    // 4. Checkerboard
-    yield* director.centerThenEnter(mindmap, 'checkerboard', CheckerboardLayer);
-    
-    // 5. Super Res Definition
-    yield* director.centerThenEnter(mindmap, 'superres', SuperResLayer);
-    
-    // 6. DLSS
-    yield* director.centerThenEnter(mindmap, 'dlss', DLSSLayer);
-    
-    // 7. FSR
-    yield* director.centerThenEnter(mindmap, 'fsr', FSRLayer);
 
-    // 8. Conclusion
-    yield* director.playLayer(ConclusionLayer);
-    yield* waitFor(1);
-    yield* mindmap.scale(0.5, 2); // Zoom out to show full map at end
+    // Chat Capability
+    yield* director.centerThenEnter(mindmap, 'chat', ChatLayer);
+
+    // Thinking Capability
+    yield* director.centerThenEnter(mindmap, 'think', ThinkingLayer);
+
+    // Agent Capability
+    yield* director.centerThenEnter(mindmap, 'agent', AgentLayer);
 }
