@@ -47,99 +47,151 @@
     },
     {
       "name": "explain_few_shot_done",
-      "targetTime": 37.8
+      "targetTime": 38.95
+    },
+    {
+      "name": "show_chat_data_stream",
+      "targetTime": 38.95
+    },
+    {
+      "name": "hide_chat_data_stream",
+      "targetTime": 41.6565087377898
     },
     {
       "name": "start_summary",
-      "targetTime": 37.8
+      "targetTime": 41.9565087377898
     },
     {
       "name": "chat_summary_item_1",
-      "targetTime": 38.8
+      "targetTime": 42.9565087377898
     },
     {
       "name": "chat_summary_item_2",
-      "targetTime": 39.5
+      "targetTime": 43.6565087377898
     },
     {
       "name": "chat_summary_item_3",
-      "targetTime": 40.2
+      "targetTime": 44.3565087377898
     },
     {
       "name": "chat_summary_item_4",
-      "targetTime": 40.900000000000006
+      "targetTime": 45.056508737789805
     },
     {
       "name": "chat_summary_last_before_disappear",
-      "targetTime": 42.60000000000001
+      "targetTime": 46.75650873778981
     },
     {
       "name": "think to ThinkingLayer 1",
-      "targetTime": 46.60000000000001
+      "targetTime": 50.25650873778981
     },
     {
       "name": "start_thinking_chat",
-      "targetTime": 48.2
+      "targetTime": 51.8565087377898
+    },
+    {
+      "name": "thinking_rabbit_wrong_question",
+      "targetTime": 52.6565087377898
+    },
+    {
+      "name": "thinking_rabbit_wrong_answer",
+      "targetTime": 54.0565087377898
+    },
+    {
+      "name": "thinking_expand_avatars",
+      "targetTime": 55.0565087377898
+    },
+    {
+      "name": "thinking_clear_chat",
+      "targetTime": 55.356508737789795
+    },
+    {
+      "name": "thinking_chain_example",
+      "targetTime": 55.606508737789795
+    },
+    {
+      "name": "thinking_rabbit_correct_answer",
+      "targetTime": 58.2065087377898
     },
     {
       "name": "show_lineage",
-      "targetTime": 50.099999999999994
+      "targetTime": 60.606508737789795
     },
     {
       "name": "start_thinking_summary",
-      "targetTime": 51.999999999999986
+      "targetTime": 65.30650873778978
     },
     {
       "name": "thinking_summary_item_1",
-      "targetTime": 59.499999999999986
+      "targetTime": 65.70650873778979
     },
     {
       "name": "thinking_summary_item_2",
-      "targetTime": 60.09999999999999
+      "targetTime": 66.3065087377898
     },
     {
       "name": "thinking_summary_last_before_disappear",
-      "targetTime": 61.89999999999999
+      "targetTime": 68.10650873778981
     },
     {
       "name": "end_thinking",
-      "targetTime": 56.59999999999999
+      "targetTime": 69.9065087377898
     },
     {
       "name": "agent to AgentLayer 2",
-      "targetTime": 65.60000000000002
+      "targetTime": 72.9065087377898
     },
     {
       "name": "start_react_flow",
-      "targetTime": 67.20000000000002
+      "targetTime": 74.5065087377898
     },
     {
       "name": "agent_step_user",
-      "targetTime": 68.79999999999998
+      "targetTime": 75.0065087377898
     },
     {
       "name": "agent_step_think",
-      "targetTime": 70.79999999999998
+      "targetTime": 77.0065087377898
     },
     {
       "name": "agent_step_action",
-      "targetTime": 72.59999999999998
+      "targetTime": 78.8065087377898
     },
     {
       "name": "agent_step_call_tool",
-      "targetTime": 74.14999999999999
+      "targetTime": 80.35650873778981
     },
     {
       "name": "agent_step_tool_done",
-      "targetTime": 75.55
+      "targetTime": 81.75650873778982
     },
     {
       "name": "agent_step_observe",
-      "targetTime": 76.05
+      "targetTime": 82.25650873778982
+    },
+    {
+      "name": "start_agent_summary",
+      "targetTime": 84.15650873778982
+    },
+    {
+      "name": "agent_summary_item_1",
+      "targetTime": 85.05650873778983
+    },
+    {
+      "name": "agent_summary_item_2",
+      "targetTime": 85.65650873778984
+    },
+    {
+      "name": "agent_summary_item_3",
+      "targetTime": 86.25650873778984
+    },
+    {
+      "name": "agent_summary_last_before_disappear",
+      "targetTime": 86.85650873778985
     },
     {
       "name": "end_agent",
-      "targetTime": 75.70000000000002
+      "targetTime": 87.35650873778985
     }
   ],
   "seed": 3501867846

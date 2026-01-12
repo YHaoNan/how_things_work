@@ -1,5 +1,5 @@
 import { Layout, Rect, Txt, Circle, Line } from "@motion-canvas/2d";
-import { ThreadGenerator, createRef, all, sequence, waitFor, waitUntil, createSignal, DEFAULT } from "@motion-canvas/core";
+import { ThreadGenerator, createRef, all, sequence, waitFor, waitUntil, createSignal, DEFAULT, any } from "@motion-canvas/core";
 import { AnimLayer } from "@src/common/animLayer";
 import { Colors } from "@src/common/colors";
 
@@ -24,12 +24,27 @@ export class ChatLayer extends AnimLayer {
     // Few-Shot placeholder (kept for timeline compatibility)
     private historyContainer = createRef<Layout>();
 
+    private dataStreamPanel = createRef<Rect>();
+    private dataStreamContent = createRef<Layout>();
+    private dataStreamY = createSignal(0);
+
     // Summary
     private summaryContainer = createRef<Layout>();
     private summaryItems: Txt[] = [];
 
     protected on_build_ui(): void {
         const fontFamily = '"Microsoft YaHei", "SimHei", sans-serif';
+        const glyphs = "01<>[]{}()=+-*/_~^$#@!?;:,.|\\";
+        const lines = 38;
+        const cols = 26;
+        const matrixLines = Array.from({length: lines}).map(() => {
+            let line = "";
+            for (let i = 0; i < cols; i++) {
+                line += glyphs[Math.floor(Math.random() * glyphs.length)];
+            }
+            return line;
+        });
+        const matrixText = matrixLines.join("\n");
 
         this.root.add(
             <Layout ref={this.chatContainer} y={0}>
@@ -156,6 +171,30 @@ export class ChatLayer extends AnimLayer {
             </Layout>
         );
 
+        this.root.add(
+            <Rect
+                ref={this.dataStreamPanel}
+                x={-720}
+                y={0}
+                width={380}
+                height={820}
+                radius={20}
+                fill={'rgba(0,0,0,0.75)'}
+                stroke={'#1c1c1c'}
+                lineWidth={2}
+                opacity={0}
+                clip
+            >
+                <Layout ref={this.dataStreamContent} y={() => this.dataStreamY()} layout direction={'column'} gap={14} x={-165}>
+                    <Txt text={matrixText} fill={Colors.green} fontSize={18} fontFamily={'JetBrains Mono'} opacity={0.75} />
+                    <Txt text={matrixText} fill={Colors.green} fontSize={18} fontFamily={'JetBrains Mono'} opacity={0.75} />
+                </Layout>
+                <Rect width={380} height={820} fill={'rgba(0,0,0,0.25)'} />
+                <Rect width={380} height={46} fill={'rgba(0,0,0,0.55)'} y={-387} />
+                <Txt text="大量对话数据…" fill={Colors.green} fontSize={18} fontFamily={'JetBrains Mono'} x={-120} y={-388} opacity={0.9} />
+            </Rect>
+        );
+
         // Summary Layer (Full Screen)
         this.root.add(
             <Rect 
@@ -179,6 +218,17 @@ export class ChatLayer extends AnimLayer {
     private summaryItems: Txt[] = [];
 
     protected *on_play(): ThreadGenerator {
+        const streamHeight = 38 * 18 * 1.15 + 14 * 37;
+        let streamRunning = true;
+        const self = this;
+        function* streamLoop(): ThreadGenerator {
+            while (streamRunning) {
+                const next = (self.dataStreamY() - 28) % -streamHeight;
+                self.dataStreamY(next);
+                yield* waitFor(0.033);
+            }
+        }
+
         // --- 1. Chat Capability (DeepSeek) ---
         yield* waitUntil('start_chat_deepseek');
         
@@ -214,9 +264,10 @@ export class ChatLayer extends AnimLayer {
         // Transition: Change Header and accent, keep reply text white
         yield* all(
             this.headerModelName().text("Qwen/Qwen3-8B-Base", 0.5),
-            this.aiBubbleContainer().opacity(0, 0.5), // Hide previous AI response
+            this.aiBubbleContainer().opacity(0, 0.5),
             // User input stays visible!
         );
+        this.aiText().text("");
         
         // Show Base Model Output (same bubble style, yellow accent)
         yield* all(
@@ -233,6 +284,15 @@ export class ChatLayer extends AnimLayer {
         // --- 3. Few-Shot Learning ---
         yield* waitUntil('start_few_shot');
 
+        yield* all(
+            this.userBubbleContainer().opacity(0, 0.35),
+            this.aiBubbleContainer().opacity(0, 0.35),
+        );
+        this.userText().text("");
+        this.aiText().text("");
+        yield* waitFor(0.1);
+        yield* this.userBubbleContainer().opacity(1, 0.35);
+
         // Few-shot prompt lives inside the user bubble, unified typewriter
         this.userText().text("");
         yield* this.userText().text(
@@ -245,9 +305,23 @@ export class ChatLayer extends AnimLayer {
         // Clear previous output
         this.aiText().text("");
         yield* waitFor(0.5);
+        yield* this.aiBubbleContainer().opacity(1, 0.35);
         yield* this.aiText().text("你好像输入了一段不完整的话", 2);
 
         yield* waitUntil('explain_few_shot_done');
+
+        yield* waitUntil('show_chat_data_stream');
+        this.dataStreamY(0);
+        streamRunning = true;
+        yield* this.dataStreamPanel().opacity(1, 0.4);
+        yield* any(
+            streamLoop(),
+            (function* () {
+                yield* waitUntil('hide_chat_data_stream');
+                streamRunning = false;
+            })()
+        );
+        yield* this.dataStreamPanel().opacity(0, 0.3);
 
         // --- 4. Summary ---
         yield* waitUntil('start_summary');

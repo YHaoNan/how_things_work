@@ -49,7 +49,7 @@ export class AgentLayer extends AnimLayer {
         this.root.add(
             <Layout>
                 <Layout ref={this.leftChat} x={-520} y={0} direction={"column"} gap={20} layout opacity={1}>
-                    <Layout ref={this.userBubbleContainer} direction={"column"} alignItems={"end"} opacity={0} width={520}>
+                    <Layout ref={this.userBubbleContainer} direction={"column"} alignItems={"start"} opacity={0} width={520}>
                         <Txt text="User" fill={"#fff"} fontSize={20} fontFamily={font} fontWeight={700} marginBottom={10} />
                         <Rect ref={this.userBubble} fill={"#444"} radius={16} padding={20} layout direction={"column"} gap={10} width={null as any} height={null as any}>
                             <Txt ref={this.userText} text={""} fill={"#fff"} fontSize={24} fontFamily={font} textWrap={true} maxWidth={420} />
@@ -201,6 +201,22 @@ export class AgentLayer extends AnimLayer {
         yield* this.stageObserve().fill(Colors.green, 0.25);
         yield* this.observeText().text("观察：write_file 返回 OK，任务完成", 0.9);
         yield* waitFor(0.5);
+
+        yield* waitUntil("start_agent_summary");
+        yield* all(
+            this.leftChat().opacity(0, 0.4),
+            this.aiSection().opacity(0, 0.4),
+            this.frameworkBar().opacity(0, 0.4)
+        );
+        yield* this.summaryContainer().opacity(1, 0.5);
+        for (let i = 0; i < this.summaryItems.length; i++) {
+            yield* waitUntil(`agent_summary_item_${i + 1}`);
+            const item = this.summaryItems[i];
+            yield* item.opacity(1, 0.4);
+            yield* waitFor(0.2);
+        }
+        yield* waitUntil("agent_summary_last_before_disappear");
+        yield* this.summaryContainer().opacity(0, 0.5);
 
         yield* waitUntil("end_agent");
     }

@@ -1,4 +1,4 @@
-import { Layout, Rect, Txt, Circle, Line, Img } from "@motion-canvas/2d";
+import { Layout, Rect, Txt, Line, Img } from "@motion-canvas/2d";
 import { ThreadGenerator, createRef, all, waitFor, waitUntil } from "@motion-canvas/core";
 import { AnimLayer } from "@src/common/animLayer";
 import { Colors } from "@src/common/colors";
@@ -46,14 +46,14 @@ export class ThinkingLayer extends AnimLayer {
                     </Rect>
                     <Layout ref={this.chatContainer} y={30} width={900} direction={"column"} gap={40} layout>
                         <Layout ref={this.userBubbleContainer} direction={"column"} alignItems={"end"} opacity={0} width={900}>
-                            <Txt text={"User"} fill={"#fff"} fontSize={20} fontFamily={font} fontWeight={700} marginBottom={10} />
+                            <Txt text={"You"} fill={"#fff"} fontSize={20} fontFamily={font} fontWeight={700} marginBottom={10} />
                             <Rect ref={this.userBubble} fill={"#444"} radius={16} padding={20} layout direction={"column"} gap={10} width={null as any} height={null as any}>
                                 <Txt ref={this.userText} text={""} fill={"#fff"} fontSize={24} fontFamily={font} textWrap={true} maxWidth={520} />
                             </Rect>
                         </Layout>
 
                         <Layout ref={this.aiBubbleContainer} direction={"column"} alignItems={"start"} opacity={0} width={900}>
-                            <Txt text={"Assistant"} fill={Colors.yellow} fontSize={20} fontFamily={font} fontWeight={700} marginBottom={10} ref={this.aiNameLabel} />
+                            <Txt text={"Model"} fill={Colors.yellow} fontSize={20} fontFamily={font} fontWeight={700} marginBottom={10} ref={this.aiNameLabel} />
                             <Rect ref={this.aiBubble} fill={"#2d2d2d"} radius={16} padding={20} stroke={Colors.yellow} lineWidth={2} layout direction={"column"} gap={10} width={null as any} height={null as any}>
                                 <Txt ref={this.aiText} text={""} fill={"#fff"} fontSize={24} fontFamily={font} textWrap={true} maxWidth={520} />
                             </Rect>
@@ -104,13 +104,40 @@ export class ThinkingLayer extends AnimLayer {
     protected *on_play(): ThreadGenerator {
         yield* waitUntil("start_thinking_chat");
         this.userText().text("");
-        yield* this.userBubbleContainer().opacity(1, 0.5);
-        yield* this.userText().text("如果小明比小红大2岁，小红今年8岁，5年后小明多大？\n\n思考：\n小明比小红大2岁，小红今年8岁，那么小明今年就是8+2=10岁，5年后，小明的年龄为10+5=15岁。\n\n如果兔子跑步速度为10km/h，乌龟比它慢10倍，乌龟跑步速度是多快？", 2.4);
-        yield* waitFor(0.4);
         this.aiText().text("");
-        yield* this.aiBubbleContainer().opacity(1, 0.5);
-        yield* this.aiText().text("兔子跑步速度为10km/h，乌龟比他慢10倍，则为10/10=1，所以乌龟跑步的速度是1km/h", 1.6);
-        yield* waitFor(0.8);
+        yield* this.userBubbleContainer().opacity(1, 0.4);
+        yield* this.aiBubbleContainer().opacity(1, 0.4);
+
+        yield* waitUntil("thinking_rabbit_wrong_question");
+        yield* this.userText().text("如果兔子跑步速度为10km/h，乌龟比它慢10倍，乌龟跑步速度是多快？", 1.4);
+
+        yield* waitUntil("thinking_rabbit_wrong_answer");
+        this.aiText().text("");
+        yield* this.aiText().text("21(❌)", 0.6);
+        yield* waitFor(0.4);
+
+        yield* waitUntil("thinking_expand_avatars");
+
+        yield* waitUntil("thinking_clear_chat");
+        yield* all(
+            this.userText().opacity(0, 0.25),
+            this.aiText().opacity(0, 0.25)
+        );
+        this.userText().text("");
+        this.aiText().text("");
+        this.userText().opacity(1);
+        this.aiText().opacity(1);
+
+        yield* waitUntil("thinking_chain_example");
+        yield* this.userText().text(
+            "如果小明比小红大2岁，小红今年8岁，5年后小明多大？\n\n思考：\n小明比小红大2岁，小红今年8岁，那么小明今年就是8+2=10岁，5年后，小明的年龄为10+5=15岁。\n\n如果兔子跑步速度为10km/h，乌龟比它慢10倍，乌龟跑步速度是多快？",
+            2.6
+        );
+
+        yield* waitUntil("thinking_rabbit_correct_answer");
+        this.aiText().text("");
+        yield* this.aiText().text("兔子跑步速度为10km/h，乌龟比他慢10倍，则为10/10=1，所以乌龟跑步的速度是1km/h(✅)", 1.8);
+        yield* waitFor(0.6);
 
         yield* waitUntil("show_lineage");
         yield* this.overlayBackdrop().opacity(0.9, 0.3);
