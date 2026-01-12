@@ -2,108 +2,144 @@
   "version": 0,
   "timeEvents": [
     {
-      "name": "tradeoff to TradeoffLayer 0",
-      "targetTime": 30.299999999999997
+      "name": "start_generation",
+      "targetTime": 1
     },
     {
-      "name": "start_tradeoff",
-      "targetTime": 32.9
+      "name": "show_chat",
+      "targetTime": 17.599999999999994
     },
     {
-      "name": "switch_1080p",
-      "targetTime": 35.39441124504415
+      "name": "show_video",
+      "targetTime": 18.099999999999994
     },
     {
-      "name": "switch_4k",
-      "targetTime": 37.977828043556315
+      "name": "show_code",
+      "targetTime": 18.599999999999994
     },
     {
-      "name": "end_tradeoff",
-      "targetTime": 55.62351470741279
+      "name": "end_intro",
+      "targetTime": 19.099999999999994
     },
     {
-      "name": "checkerboard to CheckerboardLayer 1",
-      "targetTime": 69.04967499553021
+      "name": "chat to ChatLayer 0",
+      "targetTime": 24.599999999999994
     },
     {
-      "name": "start_checkerboard",
-      "targetTime": 75.00203674683031
+      "name": "start_chat_deepseek",
+      "targetTime": 26.199999999999996
     },
     {
-      "name": "show_trick",
-      "targetTime": 78.47175040337655
+      "name": "explain_deepseek_done",
+      "targetTime": 30.399999999999995
     },
     {
-      "name": "end_checkerboard",
-      "targetTime": 105.46156216145877
+      "name": "start_qwen_base",
+      "targetTime": 30.399999999999995
     },
     {
-      "name": "superres to SuperResLayer 2",
-      "targetTime": 121.89821317299622
+      "name": "explain_base_done",
+      "targetTime": 33.699999999999996
     },
     {
-      "name": "step1_render",
-      "targetTime": 123.49821317299622
+      "name": "start_few_shot",
+      "targetTime": 33.699999999999996
     },
     {
-      "name": "step2_data",
-      "targetTime": 128.9901169082903
+      "name": "explain_few_shot_done",
+      "targetTime": 37.8
     },
     {
-      "name": "step3_output",
-      "targetTime": 137.6893498309176
+      "name": "start_summary",
+      "targetTime": 37.8
     },
     {
-      "name": "end_superres",
-      "targetTime": 140.5356272602064
+      "name": "chat_summary_item_1",
+      "targetTime": 38.8
     },
     {
-      "name": "dlss to DLSSLayer 3",
-      "targetTime": 143.5356272602064
+      "name": "chat_summary_item_2",
+      "targetTime": 39.5
     },
     {
-      "name": "start_dlss",
-      "targetTime": 146.22177332438628
+      "name": "chat_summary_item_3",
+      "targetTime": 40.2
     },
     {
-      "name": "dlss_tensor_core",
-      "targetTime": 159.803110402325
+      "name": "chat_summary_item_4",
+      "targetTime": 40.900000000000006
     },
     {
-      "name": "start_dlss_flow",
-      "targetTime": 165.27373295455865
+      "name": "chat_summary_last_before_disappear",
+      "targetTime": 42.60000000000001
     },
     {
-      "name": "end_dlss",
-      "targetTime": 179.19366531953503
+      "name": "think to ThinkingLayer 1",
+      "targetTime": 46.60000000000001
     },
     {
-      "name": "fsr to FSRLayer 4",
-      "targetTime": 183.91369885979634
+      "name": "start_thinking_chat",
+      "targetTime": 48.2
     },
     {
-      "name": "start_fsr",
-      "targetTime": 187.476135821536
+      "name": "show_lineage",
+      "targetTime": 50.099999999999994
     },
     {
-      "name": "fsr_comparison",
-      "targetTime": 202.9853399775191
+      "name": "start_thinking_summary",
+      "targetTime": 51.999999999999986
     },
     {
-      "name": "show_comparison_details",
-      "targetTime": 205.57654408562385
+      "name": "thinking_summary_item_1",
+      "targetTime": 59.499999999999986
     },
     {
-      "name": "show_fsr_comparison",
-      "targetTime": 212.38448641303117
+      "name": "thinking_summary_item_2",
+      "targetTime": 60.09999999999999
     },
     {
-      "name": "end_fsr",
-      "targetTime": 222.79706628403247
+      "name": "thinking_summary_last_before_disappear",
+      "targetTime": 61.89999999999999
     },
     {
-      "name": "more_knowledge",
-      "targetTime": 245.17255074117142
+      "name": "end_thinking",
+      "targetTime": 56.59999999999999
+    },
+    {
+      "name": "agent to AgentLayer 2",
+      "targetTime": 65.60000000000002
+    },
+    {
+      "name": "start_react_flow",
+      "targetTime": 67.20000000000002
+    },
+    {
+      "name": "agent_step_user",
+      "targetTime": 68.79999999999998
+    },
+    {
+      "name": "agent_step_think",
+      "targetTime": 70.79999999999998
+    },
+    {
+      "name": "agent_step_action",
+      "targetTime": 72.59999999999998
+    },
+    {
+      "name": "agent_step_call_tool",
+      "targetTime": 74.14999999999999
+    },
+    {
+      "name": "agent_step_tool_done",
+      "targetTime": 75.55
+    },
+    {
+      "name": "agent_step_observe",
+      "targetTime": 76.05
+    },
+    {
+      "name": "end_agent",
+      "targetTime": 75.70000000000002
     }
   ],
   "seed": 3501867846

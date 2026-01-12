@@ -1,282 +1,211 @@
-import { Layout, Rect, Txt, Circle, Line } from "@motion-canvas/2d";
-import { ThreadGenerator, createRef, all, sequence, waitFor, waitUntil, easeInOutCubic, Vector2, loop } from "@motion-canvas/core";
+import { Layout, Rect, Txt, Line } from "@motion-canvas/2d";
+import { ThreadGenerator, createRef, all, waitFor, waitUntil, easeInOutCubic, easeOutCubic } from "@motion-canvas/core";
 import { AnimLayer } from "@src/common/animLayer";
 import { Colors } from "@src/common/colors";
 
 export class AgentLayer extends AnimLayer {
-    // Scene 1: ReAct
-    private reactContainer = createRef<Layout>();
-    private userBox = createRef<Rect>();
-    private modelBox = createRef<Rect>();
-    private envBox = createRef<Rect>();
-    
-    // Arrows
-    private arrowUserToModel = createRef<Line>();
-    private arrowModelToEnv = createRef<Line>();
-    private arrowEnvToModel = createRef<Line>();
-    
-    // Bubbles
+    private leftChat = createRef<Layout>();
+    private userBubbleContainer = createRef<Layout>();
+    private userBubble = createRef<Rect>();
+    private userText = createRef<Txt>();
+
+    private aiSection = createRef<Layout>();
+    private aiTitle = createRef<Txt>();
+    private stageBar = createRef<Layout>();
+    private stageThought = createRef<Rect>();
+    private stageAction = createRef<Rect>();
+    private stageObserve = createRef<Rect>();
     private thoughtBubble = createRef<Rect>();
+    private thoughtText = createRef<Txt>();
     private actionBubble = createRef<Rect>();
-    private observationBubble = createRef<Rect>();
+    private actionText = createRef<Txt>();
+    private observeBubble = createRef<Rect>();
+    private observeText = createRef<Txt>();
 
-    // Scene 2: Training
-    private trainingContainer = createRef<Layout>();
-    private trainingModel = createRef<Rect>();
-    private traces: Layout[] = [];
+    private frameworkBar = createRef<Rect>();
+    private frameworkTitle = createRef<Txt>();
+    private frameworkStatus = createRef<Txt>();
+    private frameworkTool = createRef<Txt>();
+    private frameworkFilePath = createRef<Txt>();
+    private progressBg = createRef<Rect>();
+    private progressFill = createRef<Rect>();
+    private logLine1 = createRef<Txt>();
+    private logLine2 = createRef<Txt>();
 
-    // Scene 3: Summary
-    private summaryContainer = createRef<Layout>();
+    private toFrameworkLine = createRef<Line>();
+    private toModelLine = createRef<Line>();
+
+    private absorbContainer = createRef<Layout>();
+    private tagThought = createRef<Rect>();
+    private tagAction = createRef<Rect>();
+    private tagObserve = createRef<Rect>();
+
+    private summaryContainer = createRef<Rect>();
     private summaryItems: Txt[] = [];
 
     protected on_build_ui(): void {
-        const fontFamily = '"Microsoft YaHei", "SimHei", sans-serif';
+        const font = '"Microsoft YaHei", "SimHei", sans-serif';
 
-        // --- Scene 1: ReAct ---
         this.root.add(
-            <Layout ref={this.reactContainer} y={-50}>
-                {/* User */}
-                <Rect
-                    ref={this.userBox}
-                    x={-500}
-                    y={-200}
-                    width={200}
-                    height={100}
-                    fill={Colors.orange}
-                    radius={16}
-                >
-                    <Txt text="User" fill={'#fff'} fontSize={32} fontFamily={fontFamily} />
-                </Rect>
-
-                {/* Model */}
-                <Rect
-                    ref={this.modelBox}
-                    x={500}
-                    y={-200}
-                    width={200}
-                    height={200}
-                    fill={Colors.green}
-                    radius={16}
-                >
-                    <Txt text="Model" fill={'#fff'} fontSize={32} fontFamily={fontFamily} />
-                </Rect>
-
-                {/* Environment */}
-                <Rect
-                    ref={this.envBox}
-                    x={0}
-                    y={300}
-                    width={800}
-                    height={100}
-                    fill={Colors.brown}
-                    radius={16}
-                >
-                    <Txt text="Framework / Environment" fill={'#fff'} fontSize={32} fontFamily={fontFamily} />
-                </Rect>
-
-                {/* Arrows */}
-                <Line
-                    ref={this.arrowUserToModel}
-                    points={[new Vector2(-400, -200), new Vector2(400, -200)]}
-                    stroke={'#fff'}
-                    lineWidth={4}
-                    endArrow={true}
-                    opacity={0}
-                />
-                 <Line
-                    ref={this.arrowModelToEnv}
-                    points={[new Vector2(500, -100), new Vector2(500, 250)]} // Model Bottom to Env Right (ish)
-                    stroke={'#fff'}
-                    lineWidth={4}
-                    endArrow={true}
-                    opacity={0}
-                />
-                 <Line
-                    ref={this.arrowEnvToModel}
-                    points={[new Vector2(-500, 250), new Vector2(-500, 0), new Vector2(400, 0)]} // Env Left to Model Left (loop back) - Simplified
-                    // Actually, let's make it go from Env Center to Model Bottom-Left?
-                    // Script: "Loop arrow". 
-                    // Let's do: Model -> Env (Action), Env -> Model (Observation).
-                    stroke={'#fff'}
-                    lineWidth={4}
-                    endArrow={true}
-                    opacity={0}
-                />
-                
-                {/* Bubbles */}
-                <Rect
-                    ref={this.thoughtBubble}
-                    x={200}
-                    y={-350}
-                    fill={'#333'}
-                    radius={16}
-                    padding={20}
-                    opacity={0}
-                    maxWidth={400}
-                >
-                    <Txt text="Thinking..." fill={'#aaa'} fontSize={24} fontFamily={fontFamily} textWrap={true} />
-                </Rect>
-                 <Rect
-                    ref={this.actionBubble}
-                    x={500}
-                    y={50}
-                    fill={'#333'}
-                    radius={16}
-                    padding={20}
-                    opacity={0}
-                >
-                    <Txt text="Action JSON" fill={Colors.yellow} fontSize={24} fontFamily={fontFamily} />
-                </Rect>
-                 <Rect
-                    ref={this.observationBubble}
-                    x={0}
-                    y={150}
-                    fill={'#333'}
-                    radius={16}
-                    padding={20}
-                    opacity={0}
-                >
-                    <Txt text="Observation" fill={Colors.green} fontSize={24} fontFamily={fontFamily} />
-                </Rect>
-            </Layout>
-        );
-
-        // --- Scene 2: Training (Internalization) ---
-        this.root.add(
-            <Layout ref={this.trainingContainer} opacity={0}>
-                 <Rect
-                    ref={this.trainingModel}
-                    width={300}
-                    height={300}
-                    fill={'#222'}
-                    stroke={Colors.green}
-                    lineWidth={4}
-                    radius={20}
-                >
-                     <Txt text="Agent Model" fill={'#fff'} fontSize={32} fontFamily={fontFamily} y={-100} />
-                     {/* Internal network placeholder */}
-                     <Circle size={20} fill={'#444'} x={-50} y={0} />
-                     <Circle size={20} fill={'#444'} x={50} y={0} />
-                     <Circle size={20} fill={'#444'} x={0} y={50} />
-                     <Line points={[new Vector2(-50,0), new Vector2(50,0)]} stroke={'#444'} lineWidth={2} />
-                     <Line points={[new Vector2(-50,0), new Vector2(0,50)]} stroke={'#444'} lineWidth={2} />
-                     <Line points={[new Vector2(50,0), new Vector2(0,50)]} stroke={'#444'} lineWidth={2} />
-                </Rect>
-                {this.buildTraces(fontFamily)}
-            </Layout>
-        );
-
-        // --- Scene 3: Summary ---
-        this.root.add(
-            <Layout ref={this.summaryContainer} opacity={0}>
-                <Rect width={900} height={500} fill={'rgba(0,0,0,0.9)'} radius={20} stroke={Colors.green} lineWidth={2} />
-                <Txt text="构建Agent产品的挑战" y={-200} fill={Colors.green} fontSize={48} fontFamily={fontFamily} />
-                <Layout y={-100} x={-400}>
-                     <Txt text="1. 交互模式 (ReAct/LangChain)" fill={'#fff'} fontSize={32} fontFamily={fontFamily} y={0} opacity={0} ref={makeRef(this.summaryItems, 0)} />
-                     <Txt text="2. 复杂轨迹描述 (Browser/Delay)" fill={'#fff'} fontSize={32} fontFamily={fontFamily} y={60} opacity={0} ref={makeRef(this.summaryItems, 1)} />
-                     <Txt text="3. 轨迹收集与生成 (Nex-N1/Auto-Gen)" fill={'#fff'} fontSize={32} fontFamily={fontFamily} y={120} opacity={0} ref={makeRef(this.summaryItems, 2)} />
+            <Layout>
+                <Layout ref={this.leftChat} x={-520} y={0} direction={"column"} gap={20} layout opacity={1}>
+                    <Layout ref={this.userBubbleContainer} direction={"column"} alignItems={"end"} opacity={0} width={520}>
+                        <Txt text="User" fill={"#fff"} fontSize={20} fontFamily={font} fontWeight={700} marginBottom={10} />
+                        <Rect ref={this.userBubble} fill={"#444"} radius={16} padding={20} layout direction={"column"} gap={10} width={null as any} height={null as any}>
+                            <Txt ref={this.userText} text={""} fill={"#fff"} fontSize={24} fontFamily={font} textWrap={true} maxWidth={420} />
+                        </Rect>
+                    </Layout>
                 </Layout>
+
+                <Layout ref={this.aiSection} topLeft={[120, -200]} width={840} layout direction={"column"} gap={18} alignItems={"start"} opacity={0}>
+                    <Txt ref={this.aiTitle} text={"AI 模型"} fill={Colors.green} fontSize={36} fontFamily={font} fontWeight={800} />
+                    <Layout ref={this.stageBar} width={840} layout direction={"row"} gap={14} alignItems={"center"}>
+                        <Rect ref={this.stageThought} radius={999} padding={[8, 14]} fill={"#2a2a2a"} layout>
+                            <Txt text={"思考"} fill={"#fff"} fontSize={20} fontFamily={font} fontWeight={700} />
+                        </Rect>
+                        <Rect ref={this.stageAction} radius={999} padding={[8, 14]} fill={"#2a2a2a"} layout>
+                            <Txt text={"行动"} fill={"#fff"} fontSize={20} fontFamily={font} fontWeight={700} />
+                        </Rect>
+                        <Rect ref={this.stageObserve} radius={999} padding={[8, 14]} fill={"#2a2a2a"} layout>
+                            <Txt text={"观察"} fill={"#fff"} fontSize={20} fontFamily={font} fontWeight={700} />
+                        </Rect>
+                    </Layout>
+                    <Layout width={840} layout direction={"column"} gap={14} alignItems={"start"} marginTop={8}>
+                        <Rect ref={this.thoughtBubble} radius={16} fill={"#1f1f1f"} stroke={Colors.yellow} lineWidth={2} opacity={0} padding={16} layout direction={"column"} gap={8} width={null as any} height={null as any}>
+                            <Txt ref={this.thoughtText} text={""} fill={"#fff"} fontSize={24} fontFamily={font} textWrap={true} maxWidth={760} />
+                        </Rect>
+                        <Rect ref={this.actionBubble} radius={16} fill={"#1f1f1f"} stroke={Colors.orange} lineWidth={2} opacity={0} padding={16} layout direction={"column"} gap={8} width={null as any} height={null as any}>
+                            <Txt ref={this.actionText} text={""} fill={"#fff"} fontSize={24} fontFamily={font} textWrap={true} maxWidth={760} />
+                        </Rect>
+                        <Rect ref={this.observeBubble} radius={16} fill={"#1f1f1f"} stroke={Colors.green} lineWidth={2} opacity={0} padding={16} layout direction={"column"} gap={8} width={null as any} height={null as any}>
+                            <Txt ref={this.observeText} text={""} fill={"#fff"} fontSize={24} fontFamily={font} textWrap={true} maxWidth={760} />
+                        </Rect>
+                    </Layout>
+                </Layout>
+
+                <Rect ref={this.frameworkBar} x={0} y={330} width={1320} height={200} radius={24} fill={"#151515"} stroke={"#2a2a2a"} lineWidth={2} opacity={0} padding={24} layout direction={"column"} gap={16}>
+                    <Layout layout direction={"row"} alignItems={"center"} justifyContent={"space-between"} width={1272}>
+                        <Txt ref={this.frameworkTitle} text={"框架 / Tool Runner"} fill={"#fff"} fontSize={28} fontFamily={font} fontWeight={700} />
+                        <Txt ref={this.frameworkStatus} text={""} fill={Colors.yellow} fontSize={24} fontFamily={font} fontWeight={700} />
+                    </Layout>
+                    <Layout layout direction={"row"} gap={18} width={1272} alignItems={"center"}>
+                        <Rect width={76} height={76} radius={18} fill={"#232323"} layout>
+                            <Txt text={"⚙"} fill={Colors.yellow} fontSize={42} fontFamily={font} y={2} />
+                        </Rect>
+                        <Layout layout direction={"column"} gap={8} width={1120}>
+                            <Layout layout direction={"row"} gap={16} alignItems={"center"} width={1120}>
+                                <Txt ref={this.frameworkTool} text={""} fill={Colors.yellow} fontSize={24} fontFamily={font} fontWeight={700} />
+                                <Txt ref={this.frameworkFilePath} text={""} fill={"#bdbdbd"} fontSize={22} fontFamily={font} />
+                            </Layout>
+                            <Rect ref={this.progressBg} width={1120} height={14} radius={999} fill={"#2a2a2a"} clip>
+                                <Rect ref={this.progressFill} width={0} height={14} radius={999} fill={Colors.green} />
+                            </Rect>
+                            <Layout layout direction={"column"} gap={4} opacity={1}>
+                                <Txt ref={this.logLine1} text={""} fill={"#9a9a9a"} fontSize={20} fontFamily={font} />
+                                <Txt ref={this.logLine2} text={""} fill={"#9a9a9a"} fontSize={20} fontFamily={font} />
+                            </Layout>
+                        </Layout>
+                    </Layout>
+                </Rect>
+
+                <Line ref={this.toFrameworkLine} points={[[220, -30], [0, 250]]} stroke={Colors.orange} lineWidth={4} end={0} opacity={0} shadowBlur={14} shadowColor={"rgba(237,150,79,0.9)"} />
+                <Line ref={this.toModelLine} points={[[0, 250], [260, -10]]} stroke={Colors.green} lineWidth={4} end={0} opacity={0} shadowBlur={14} shadowColor={"rgba(97,194,140,0.9)"} />
+
+                <Layout ref={this.absorbContainer} x={450} y={0} opacity={0}>
+                    <Rect ref={this.tagThought} x={-300} y={-200} width={180} height={60} radius={12} fill={Colors.yellow} opacity={0} layout>
+                        <Txt text={"思考"} fill={"#000"} fontSize={24} fontFamily={font} />
+                    </Rect>
+                    <Rect ref={this.tagAction} x={-300} y={-120} width={180} height={60} radius={12} fill={Colors.orange} opacity={0} layout>
+                        <Txt text={"行动"} fill={"#000"} fontSize={24} fontFamily={font} />
+                    </Rect>
+                    <Rect ref={this.tagObserve} x={-300} y={-40} width={180} height={60} radius={12} fill={Colors.green} opacity={0} layout>
+                        <Txt text={"观察"} fill={"#000"} fontSize={24} fontFamily={font} />
+                    </Rect>
+                </Layout>
+
+                <Rect ref={this.summaryContainer} opacity={0} width={1920} height={1080} fill={"rgba(0,0,0,0.95)"} x={0} y={0}>
+                    <Txt text={"构建Agent能力的挑战"} y={-300} fill={Colors.orange} fontSize={64} fontFamily={font} />
+                    <Layout y={-20} x={-200} direction={"column"} gap={60} layout>
+                        <Txt text={"1. 与模型交互策略：ReAct、Focused ReAct、框架Agent实现"} fill={"#fff"} fontSize={40} fontFamily={font} opacity={0} textAlign={"left"} width={1400} ref={makeRef(this.summaryItems, 0)} />
+                        <Txt text={"2. 复杂任务轨迹的描述与通用格式：AgentTuning、ADP"} fill={"#fff"} fontSize={40} fontFamily={font} opacity={0} textAlign={"left"} width={1400} ref={makeRef(this.summaryItems, 1)} />
+                        <Txt text={"3. 高质量轨迹的自动化生成与校验：Nex-N1工作流"} fill={"#fff"} fontSize={40} fontFamily={font} opacity={0} textAlign={"left"} width={1400} ref={makeRef(this.summaryItems, 2)} />
+                    </Layout>
+                </Rect>
             </Layout>
         );
-    }
-
-    private buildTraces(fontFamily: string) {
-        const els: any[] = [];
-        // Create 5 traces floating around
-        for (let i = 0; i < 5; i++) {
-             const trace = createRef<Layout>();
-             els.push(
-                 <Layout ref={trace} x={-600} y={(i-2)*100} opacity={0}>
-                     <Rect fill={'#333'} radius={8} padding={10}>
-                         <Txt text="Think-Act-Obs" fill={'#aaa'} fontSize={16} fontFamily={fontFamily} />
-                     </Rect>
-                 </Layout>
-             );
-             // Store the REF itself (function), not cast to Layout.
-             // We will handle the type casting in the loop where we use it.
-             this.traces.push(trace as any); 
-        }
-        return els;
     }
 
     protected *on_play(): ThreadGenerator {
-        // --- 1. ReAct Demo ---
-        yield* waitUntil('start_react_demo');
+        yield* waitUntil("start_react_flow");
+        yield* all(
+            this.userBubbleContainer().opacity(1, 0.5),
+            this.aiSection().opacity(1, 0.4),
+            this.frameworkBar().opacity(1, 0.4)
+        );
 
-        // Show User Request
-        yield* this.arrowUserToModel().opacity(1, 0.5);
-        yield* this.thoughtBubble().opacity(1, 0.5);
-        yield* (this.thoughtBubble().children()[0] as Txt).text("思考：编写爱心程序 -> write_file", 1);
-        
+        this.stageThought().fill("#2a2a2a");
+        this.stageAction().fill("#2a2a2a");
+        this.stageObserve().fill("#2a2a2a");
+
+        this.frameworkTitle().text("框架 / Tool Runner");
+        this.frameworkStatus().text("");
+        this.frameworkTool().text("");
+        this.frameworkFilePath().text("");
+        this.logLine1().text("");
+        this.logLine2().text("");
+        this.progressFill().width(0);
+
+        yield* waitUntil("agent_step_user");
+        this.userText().text("");
+        yield* this.userText().text("请帮我编写一个小程序输出爱心…\n\n可用工具：write_file(path, content)", 2.0);
+
+        yield* waitUntil("agent_step_think");
+        this.thoughtText().text("");
+        yield* this.thoughtBubble().opacity(1, 0.25);
+        yield* this.stageThought().fill(Colors.yellow, 0.25);
+        yield* this.thoughtText().text("思考：要完成任务，我需要把程序写入 heart.py", 1.1);
+        yield* waitFor(0.2);
+
+        yield* waitUntil("agent_step_action");
+        this.actionText().text("");
+        yield* this.actionBubble().opacity(1, 0.25);
+        yield* this.stageAction().fill(Colors.orange, 0.25);
+        yield* this.actionText().text("行动：调用 write_file('./heart.py', '...')", 0.9);
+        yield* waitFor(0.15);
+
+        yield* waitUntil("agent_step_call_tool");
+        this.toFrameworkLine().end(0);
+        this.toFrameworkLine().opacity(1);
+        yield* this.toFrameworkLine().end(1, 0.35, easeOutCubic);
+        yield* this.toFrameworkLine().opacity(0, 0.15);
+
+        this.frameworkStatus().text("执行中…");
+        this.frameworkTool().text("write_file");
+        this.frameworkFilePath().text("./heart.py");
+        this.logLine1().text("准备写入文件…");
+        this.logLine2().text("写入中：heart.py");
+        yield* this.progressFill().width(1120, 0.9, easeInOutCubic);
+        this.frameworkStatus().text("完成 ✓");
+        this.logLine1().text("write_file 返回：OK");
+        this.logLine2().text("文件已生成：heart.py");
+
+        yield* waitUntil("agent_step_tool_done");
+        this.toModelLine().end(0);
+        this.toModelLine().opacity(1);
+        yield* this.toModelLine().end(1, 0.35, easeOutCubic);
+        yield* this.toModelLine().opacity(0, 0.15);
+
+        yield* waitUntil("agent_step_observe");
+        this.observeText().text("");
+        yield* this.observeBubble().opacity(1, 0.25);
+        yield* this.stageObserve().fill(Colors.green, 0.25);
+        yield* this.observeText().text("观察：write_file 返回 OK，任务完成", 0.9);
         yield* waitFor(0.5);
-        
-        // Action
-        yield* this.arrowModelToEnv().opacity(1, 0.5);
-        yield* this.actionBubble().opacity(1, 0.5);
-        yield* (this.actionBubble().children()[0] as Txt).text('{"action": "write_file"...}', 1);
 
-        yield* waitFor(0.5);
-
-        // Observation
-        yield* this.arrowEnvToModel().points([new Vector2(0, 300), new Vector2(0, 0), new Vector2(400, 0)], 0); // Reset points for cleaner anim if needed, but simple is fine
-        // Let's just use a direct line from Env to Model
-        // My arrowEnvToModel points were: Env Left -> Model Left.
-        // Let's animate it appearing.
-        this.arrowEnvToModel().points([new Vector2(0, 250), new Vector2(0, 0), new Vector2(400, 0)]); // Adjust path: Env Top Center -> Up -> Right -> Model Left
-        // Actually points are relative to parent? No, local to Line.
-        // Line is in reactContainer (y=-50).
-        // Env is at (0, 300). Model at (500, -200).
-        // Let's make points: (0, 250) -> (0, -200) -> (400, -200).
-        this.arrowEnvToModel().points([new Vector2(0, 250), new Vector2(0, -200), new Vector2(400, -200)]);
-        
-        yield* this.arrowEnvToModel().opacity(1, 0.5);
-        yield* this.observationBubble().opacity(1, 0.5);
-        yield* (this.observationBubble().children()[0] as Txt).text("Observe: OK", 1);
-        
-        yield* waitUntil('react_demo_done');
-
-        // --- 2. Training (Internalization) ---
-        yield* waitUntil('start_agent_training');
-        
-        // Hide ReAct
-        yield* this.reactContainer().opacity(0, 0.5);
-        
-        // Show Training Model
-        yield* this.trainingContainer().opacity(1, 0.5);
-        
-        // Animate Traces flying in
-        yield* sequence(0.2, ...this.traces.map((traceRef) => {
-            // traceRef is Reference<Layout>
-            const trace = (traceRef as unknown as () => Layout)();
-            return all(
-                trace.opacity(1, 0.1),
-                trace.position(new Vector2(0, 0), 1, easeInOutCubic),
-                trace.scale(0.1, 1),
-                trace.opacity(0, 1) // Fade out as they merge
-            );
-        }));
-
-        // Glow Model
-        yield* this.trainingModel().stroke(Colors.yellow, 0.5).to(Colors.green, 0.5);
-        yield* this.trainingModel().fill('#333', 0.5).to('#222', 0.5);
-
-        yield* waitUntil('agent_training_done');
-
-        // --- 3. Summary ---
-        yield* waitUntil('start_agent_summary');
-
-        yield* this.trainingContainer().opacity(0, 0.5);
-        yield* this.summaryContainer().opacity(1, 0.5);
-        
-        for(const item of this.summaryItems) {
-            yield* item.opacity(1, 0.5);
-            yield* waitFor(0.2);
-        }
-
-        yield* waitFor(2);
+        yield* waitUntil("end_agent");
     }
 }
 
 function makeRef<T>(arr: T[], index: number) {
-    return (el: T) => { arr[index] = el; }
+    return (el: T) => { arr[index] = el; };
 }

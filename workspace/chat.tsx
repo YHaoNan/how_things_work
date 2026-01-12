@@ -256,12 +256,16 @@ export class ChatLayer extends AnimLayer {
         yield* this.chatContainer().opacity(0, 0.5);
         yield* this.summaryContainer().opacity(1, 0.5);
         
-        for(const item of this.summaryItems) {
+        for (let i = 0; i < this.summaryItems.length; i++) {
+            yield* waitUntil(`chat_summary_item_${i + 1}`);
+            const item = this.summaryItems[i];
             yield* item.opacity(1, 0.5);
             yield* waitFor(0.2);
         }
         
-        yield* waitFor(2);
+        yield* waitFor(1);
+        yield* waitUntil('chat_summary_last_before_disappear');
+        yield* this.summaryContainer().opacity(0, 0.5);
     }
 }
 

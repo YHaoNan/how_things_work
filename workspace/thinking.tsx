@@ -1,291 +1,159 @@
-import { Layout, Rect, Txt, Circle, Line } from "@motion-canvas/2d";
-import { ThreadGenerator, createRef, all, sequence, waitFor, waitUntil, easeInOutCubic, Vector2 } from "@motion-canvas/core";
+import { Layout, Rect, Txt, Circle, Line, Img } from "@motion-canvas/2d";
+import { ThreadGenerator, createRef, all, waitFor, waitUntil } from "@motion-canvas/core";
 import { AnimLayer } from "@src/common/animLayer";
 import { Colors } from "@src/common/colors";
+import coverImg from "./assets/推荐视频封面.jpg";
 
 export class ThinkingLayer extends AnimLayer {
-    // Scene 1: Reasoning Demo
     private chatContainer = createRef<Layout>();
+    private userBubbleContainer = createRef<Layout>();
+    private aiBubbleContainer = createRef<Layout>();
+    private aiNameLabel = createRef<Txt>();
     private userBubble = createRef<Rect>();
+    private userText = createRef<Txt>();
     private aiBubble = createRef<Rect>();
-    private thinkingBox = createRef<Rect>();
-    private thinkingText = createRef<Txt>();
-    private answerText = createRef<Txt>();
+    private aiText = createRef<Txt>();
+    private headerModelName = createRef<Txt>();
 
-    // Scene 2: CoT Family Tree
-    private treeContainer = createRef<Layout>();
-    private cotNode = createRef<Circle>();
-    private cotLabel = createRef<Txt>();
-    private branches: Line[] = [];
-    private branchWrappers: Layout[] = [];
-    
-    // Scene 3: Summary
-    private summaryContainer = createRef<Layout>();
+    private lineageContainer = createRef<Layout>();
+    private centerNode = createRef<Rect>();
+    private nodeSC = createRef<Rect>();
+    private nodeToT = createRef<Rect>();
+    private nodeGoT = createRef<Rect>();
+    private nodeFewShot = createRef<Rect>();
+    private lineTop = createRef<Line>();
+    private lineBottom = createRef<Line>();
+    private lineLeft = createRef<Line>();
+    private lineRight = createRef<Line>();
+
+    private overlayBackdrop = createRef<Rect>();
+
+    private summaryContainer = createRef<Rect>();
     private summaryItems: Txt[] = [];
 
-    protected on_build_ui(): void {
-        const fontFamily = '"Microsoft YaHei", "SimHei", sans-serif';
+    private recommendContainer = createRef<Layout>();
+    private recommendImg = createRef<Img>();
+    private recommendTitle = createRef<Txt>();
 
-        // --- Scene 1: Chat/Reasoning UI ---
+    protected on_build_ui(): void {
+        const font = '"Microsoft YaHei", "SimHei", sans-serif';
+
         this.root.add(
-            <Layout ref={this.chatContainer} y={-50}>
-                {/* User Question */}
-                <Rect
-                    ref={this.userBubble}
-                    x={200}
-                    y={-300}
-                    fill={'#444'}
-                    radius={16}
-                    padding={20}
-                    opacity={0}
-                >
-                    <Txt
-                        text="如果兔子跑步速度为10km/h，乌龟比它慢10倍，乌龟跑步速度是多快？"
-                        fill={'#fff'}
-                        fontSize={24}
-                        fontFamily={fontFamily}
-                        maxWidth={600}
-                        textWrap={true}
-                    />
+            <Layout>
+                <Rect width={1000} height={800} fill={"#1e1e1e"} radius={20} stroke={"#333"} lineWidth={2} clip y={0} x={0}>
+                    <Rect width={1000} height={60} fill={"#2d2d2d"} y={-370}>
+                        <Txt ref={this.headerModelName} text={"Qwen/Qwen3-8B-Base"} fill={"#fff"} fontSize={24} fontFamily={font} fontWeight={700} />
+                    </Rect>
+                    <Layout ref={this.chatContainer} y={30} width={900} direction={"column"} gap={40} layout>
+                        <Layout ref={this.userBubbleContainer} direction={"column"} alignItems={"end"} opacity={0} width={900}>
+                            <Txt text={"User"} fill={"#fff"} fontSize={20} fontFamily={font} fontWeight={700} marginBottom={10} />
+                            <Rect ref={this.userBubble} fill={"#444"} radius={16} padding={20} layout direction={"column"} gap={10} width={null as any} height={null as any}>
+                                <Txt ref={this.userText} text={""} fill={"#fff"} fontSize={24} fontFamily={font} textWrap={true} maxWidth={520} />
+                            </Rect>
+                        </Layout>
+
+                        <Layout ref={this.aiBubbleContainer} direction={"column"} alignItems={"start"} opacity={0} width={900}>
+                            <Txt text={"Assistant"} fill={Colors.yellow} fontSize={20} fontFamily={font} fontWeight={700} marginBottom={10} ref={this.aiNameLabel} />
+                            <Rect ref={this.aiBubble} fill={"#2d2d2d"} radius={16} padding={20} stroke={Colors.yellow} lineWidth={2} layout direction={"column"} gap={10} width={null as any} height={null as any}>
+                                <Txt ref={this.aiText} text={""} fill={"#fff"} fontSize={24} fontFamily={font} textWrap={true} maxWidth={520} />
+                            </Rect>
+                        </Layout>
+                    </Layout>
                 </Rect>
 
-                {/* AI Answer Container */}
-                <Layout x={-200} y={-100}>
-                    {/* Thinking Process (Hidden initially) */}
-                    <Rect
-                        ref={this.thinkingBox}
-                        y={0}
-                        width={500}
-                        height={0} // Expands later
-                        fill={'#222'}
-                        stroke={'#555'}
-                        lineWidth={1}
-                        radius={8}
-                        opacity={0}
-                        clip={true}
-                    >
-                         <Txt
-                            text="思考过程："
-                            x={-220}
-                            y={-60} // Adjusted relative to content
-                            fill={'#888'}
-                            fontSize={18}
-                            fontFamily={fontFamily}
-                        />
-                        <Txt
-                            ref={this.thinkingText}
-                            text=""
-                            x={0}
-                            y={0}
-                            fill={'#aaa'}
-                            fontSize={18}
-                            fontFamily={fontFamily}
-                            width={460}
-                            textWrap={true}
-                        />
-                    </Rect>
+                <Rect ref={this.overlayBackdrop} width={1920} height={1080} fill={"rgba(0,0,0,1)"} opacity={0} />
 
-                    {/* Final Answer */}
-                    <Rect
-                        ref={this.aiBubble}
-                        y={150} // Below thinking box
-                        opacity={0}
-                        fill={'#2d2d2d'}
-                        radius={16}
-                        padding={20}
-                        stroke={Colors.green}
-                        lineWidth={2}
-                    >
-                        <Txt
-                            ref={this.answerText}
-                            text=""
-                            fill={'#fff'}
-                            fontSize={24}
-                            fontFamily={fontFamily}
-                            maxWidth={460}
-                            textWrap={true}
-                        />
+                <Layout ref={this.lineageContainer} opacity={0} y={60}>
+                    <Line ref={this.lineTop} points={[[0, -55], [0, -240]]} stroke={Colors.yellow} lineWidth={6} opacity={0} />
+                    <Line ref={this.lineBottom} points={[[0, 55], [0, 240]]} stroke={Colors.green} lineWidth={6} opacity={0} />
+                    <Line ref={this.lineLeft} points={[[-150, 0], [-420, 0]]} stroke={Colors.brown} lineWidth={6} opacity={0} />
+                    <Line ref={this.lineRight} points={[[150, 0], [420, 0]]} stroke={Colors.red} lineWidth={6} opacity={0} />
+                    <Rect ref={this.centerNode} width={300} height={110} radius={24} fill={Colors.orange} shadowBlur={20} shadowColor={"rgba(255,165,0,0.6)"} x={0} y={0} opacity={0} layout alignItems={"center"} justifyContent={"center"}>
+                        <Txt text={"CoT (思维链)"} fill={"#fff"} fontSize={36} fontFamily={font} textAlign={"center"} width={260} />
+                    </Rect>
+                    <Rect ref={this.nodeSC} width={320} height={100} radius={20} fill={Colors.yellow} shadowBlur={18} shadowColor={"rgba(255,255,0,0.5)"} x={0} y={-280} opacity={0} layout alignItems={"center"} justifyContent={"center"}>
+                        <Txt text={"CoT-SC (自洽)"} fill={"#fff"} fontSize={30} fontFamily={font} textAlign={"center"} width={280} />
+                    </Rect>
+                    <Rect ref={this.nodeToT} width={320} height={100} radius={20} fill={Colors.green} shadowBlur={18} shadowColor={"rgba(97,194,140,0.5)"} x={0} y={280} opacity={0} layout alignItems={"center"} justifyContent={"center"}>
+                        <Txt text={"ToT (思维树)"} fill={"#fff"} fontSize={30} fontFamily={font} textAlign={"center"} width={280} />
+                    </Rect>
+                    <Rect ref={this.nodeGoT} width={320} height={100} radius={20} fill={Colors.brown} shadowBlur={18} shadowColor={"rgba(141,103,38,0.5)"} x={-440} y={0} opacity={0} layout alignItems={"center"} justifyContent={"center"}>
+                        <Txt text={"GoT (思维图)"} fill={"#fff"} fontSize={30} fontFamily={font} textAlign={"center"} width={280} />
+                    </Rect>
+                    <Rect ref={this.nodeFewShot} width={320} height={100} radius={20} fill={Colors.red} shadowBlur={18} shadowColor={"rgba(113,80,91,0.6)"} x={440} y={0} opacity={0} layout alignItems={"center"} justifyContent={"center"}>
+                        <Txt text={"Few-Shot CoT"} fill={"#fff"} fontSize={30} fontFamily={font} textAlign={"center"} width={280} />
                     </Rect>
                 </Layout>
-            </Layout>
-        );
 
-        // --- Scene 2: CoT Family Tree ---
-        this.root.add(
-            <Layout ref={this.treeContainer} opacity={0}>
-                {/* Center Node */}
-                <Circle
-                    ref={this.cotNode}
-                    size={120}
-                    fill={Colors.red}
-                    stroke={'#fff'}
-                    lineWidth={4}
-                >
-                     <Txt ref={this.cotLabel} text="CoT\n(思维链)" fill={'#fff'} fontSize={28} fontFamily={fontFamily} textAlign={'center'} />
-                </Circle>
-                
-                {this.buildBranches(fontFamily)}
-            </Layout>
-        );
+                <Rect ref={this.summaryContainer} opacity={0} width={1920} height={1080} fill={"rgba(0,0,0,0.95)"} x={0} y={0}>
+                    <Txt text={"构建思考模型的挑战"} y={-300} fill={Colors.orange} fontSize={64} fontFamily={font} />
+                    <Layout y={-20} x={-200} direction={"column"} gap={60} layout>
+                        <Txt text={"1. 更长的训练数据更有效"} fill={"#fff"} fontSize={40} fontFamily={font} opacity={0} textAlign={"left"} width={1200} ref={makeRef(this.summaryItems, 0)} />
+                        <Txt text={"2. 如何生成思考轨迹（如Orca、自动化生成/验证）"} fill={"#fff"} fontSize={40} fontFamily={font} opacity={0} textAlign={"left"} width={1200} ref={makeRef(this.summaryItems, 1)} />
+                    </Layout>
+                </Rect>
 
-        // --- Scene 3: Summary ---
-        this.root.add(
-            <Layout ref={this.summaryContainer} opacity={0}>
-                <Rect width={900} height={500} fill={'rgba(0,0,0,0.9)'} radius={20} stroke={Colors.yellow} lineWidth={2} />
-                <Txt text="构建思考模型(Reasoning)的挑战" y={-200} fill={Colors.yellow} fontSize={48} fontFamily={fontFamily} />
-                <Layout y={-100} x={-400}>
-                     <Txt text="1. 训练数据构造 (Quality & Length)" fill={'#fff'} fontSize={32} fontFamily={fontFamily} y={0} opacity={0} ref={makeRef(this.summaryItems, 0)} />
-                     <Txt text="2. 思考轨迹生成 (Process Supervision)" fill={'#fff'} fontSize={32} fontFamily={fontFamily} y={60} opacity={0} ref={makeRef(this.summaryItems, 1)} />
-                     <Txt text="3. 自动化验证 (Outcome/Process Reward Models)" fill={'#fff'} fontSize={32} fontFamily={fontFamily} y={120} opacity={0} ref={makeRef(this.summaryItems, 2)} />
-                </Layout>
-                 {/* Video Recommendation */}
-                <Layout y={150} opacity={0} ref={makeRef(this.summaryItems, 3)}>
-                    <Txt text="推荐观看：为什么大模型会【涌现】智能" fill={Colors.orange} fontSize={36} fontFamily={fontFamily} />
+                <Layout ref={this.recommendContainer} opacity={0} y={0}>
+                    <Img ref={this.recommendImg} src={coverImg} width={720} height={405} radius={20} />
+                    <Txt ref={this.recommendTitle} text={"为什么大模型会【涌现】智能"} y={260} fill={Colors.orange} fontSize={48} fontFamily={font} />
                 </Layout>
             </Layout>
         );
-    }
-
-    private buildBranches(fontFamily: string) {
-        const branchData = [
-            { name: "CoT-SC\n(自洽)", pos: new Vector2(0, -250), color: Colors.orange },
-            { name: "ToT\n(思维树)", pos: new Vector2(-300, 0), color: Colors.green },
-            { name: "GoT\n(思维图)", pos: new Vector2(300, 0), color: Colors.brown },
-            { name: "Few-Shot\nCoT", pos: new Vector2(0, 250), color: Colors.yellow },
-        ];
-
-        const els: any[] = [];
-        branchData.forEach((data, i) => {
-             // Line
-             const line = createRef<Line>();
-             els.push(
-                 <Line
-                    ref={line}
-                    points={[Vector2.zero, Vector2.zero]} 
-                    endArrow={true}
-                    stroke={'#fff'}
-                    lineWidth={4}
-                    opacity={0}
-                 />
-             );
-             
-             // Wrapper
-             const wrapper = createRef<Layout>();
-             els.push(
-                 <Layout ref={wrapper} x={data.pos.x} y={data.pos.y} opacity={0} scale={0}>
-                    <Circle
-                        size={100}
-                        fill={data.color}
-                        stroke={'#fff'}
-                        lineWidth={2}
-                    >
-                         <Txt text={data.name} fill={'#fff'} fontSize={24} fontFamily={fontFamily} textAlign={'center'} />
-                    </Circle>
-                 </Layout>
-             );
-             
-             // IMPORTANT: We must store the REF itself, which is a function.
-             // But in the loop below we need to CALL it.
-             // However, `this.branches` is typed as `Line[]`. 
-             // If we push the `line` ref (which is `Reference<Line>`), we can't treat it as `Line` directly in the loop without calling it.
-             // BUT, `createRef` returns a function. 
-             // Let's store the Reference, and change the loop to call it.
-             // OR, just for simplicity in this specific file structure, I will fix the loop usage.
-             // Here I am pushing `line as any` to `this.branches`.
-             // `this.branches` is defined as `Line[]`. This is a type lie if I push `Reference<Line>`.
-             // I should update the type definition of `branches` to `Reference<Line>[]` or just `any[]` to be safe, 
-             // OR fix the loop to expect a Reference.
-             
-             this.branches.push(line as any); 
-             this.branchWrappers.push(wrapper as any);
-        });
-        return els;
     }
 
     protected *on_play(): ThreadGenerator {
-        // --- 1. Reasoning Demo ---
-        yield* waitUntil('start_reasoning_demo');
-        
-        // Show User Question
-        yield* this.userBubble().opacity(1, 0.5);
+        yield* waitUntil("start_thinking_chat");
+        this.userText().text("");
+        yield* this.userBubbleContainer().opacity(1, 0.5);
+        yield* this.userText().text("如果小明比小红大2岁，小红今年8岁，5年后小明多大？\n\n思考：\n小明比小红大2岁，小红今年8岁，那么小明今年就是8+2=10岁，5年后，小明的年龄为10+5=15岁。\n\n如果兔子跑步速度为10km/h，乌龟比它慢10倍，乌龟跑步速度是多快？", 2.4);
+        yield* waitFor(0.4);
+        this.aiText().text("");
+        yield* this.aiBubbleContainer().opacity(1, 0.5);
+        yield* this.aiText().text("兔子跑步速度为10km/h，乌龟比他慢10倍，则为10/10=1，所以乌龟跑步的速度是1km/h", 1.6);
+        yield* waitFor(0.8);
+
+        yield* waitUntil("show_lineage");
+        yield* this.overlayBackdrop().opacity(0.9, 0.3);
+        yield* this.lineageContainer().opacity(1, 0.3);
+        yield* this.centerNode().opacity(1, 0.3);
+        yield* this.lineTop().opacity(1, 0.25);
+        yield* this.nodeSC().opacity(1, 0.25);
+        yield* this.lineBottom().opacity(1, 0.25);
+        yield* this.nodeToT().opacity(1, 0.25);
+        yield* this.lineLeft().opacity(1, 0.25);
+        yield* this.nodeGoT().opacity(1, 0.25);
+        yield* this.lineRight().opacity(1, 0.25);
+        yield* this.nodeFewShot().opacity(1, 0.25);
+        yield* this.centerNode().scale(1.06, 0.4).to(1, 0.4);
         yield* waitFor(1);
 
-        // Show Thinking Process
-        yield* waitUntil('show_thinking_process');
-        this.thinkingBox().opacity(1);
-        
-        // Expand Thinking Box and Type text
-        const thinkingContent = "兔子跑步速度为10km/h，乌龟比他慢10倍，则为10/10=1，所以乌龟跑步的速度是1km/h";
-        
-        // Animate expansion
-        yield* this.thinkingBox().height(150, 0.5, easeInOutCubic);
-        yield* this.thinkingBox().y(-50, 0.5, easeInOutCubic); // Move up slightly
-        
-        yield* this.thinkingText().text(thinkingContent, 2); // Typewriter
-        
-        yield* waitFor(0.5);
-
-        // Show Answer
-        this.answerText().text("乌龟跑步的速度是1km/h");
-        yield* this.aiBubble().opacity(1, 0.5);
-
-        yield* waitUntil('reasoning_demo_done');
-
-        // --- 2. CoT Family Tree ---
-        yield* waitUntil('start_cot_tree');
-
-        // Fade out chat
-        yield* this.chatContainer().opacity(0, 0.5);
-        
-        // Fade in Center Node
-        yield* this.treeContainer().opacity(1, 0.5);
-        yield* this.cotNode().scale(0, 0).to(1, 0.5, easeInOutCubic);
-
-        yield* waitFor(0.5);
-
-        // Animate Branches
-        const branchData = [
-            { pos: new Vector2(0, -250) },
-            { pos: new Vector2(-300, 0) },
-            { pos: new Vector2(300, 0) },
-            { pos: new Vector2(0, 250) },
-        ];
-
-        // Animate lines extending and nodes appearing
-        yield* sequence(0.2, ...this.branches.map((lineRef, i) => {
-            // lineRef is a Reference<Line>
-            const line = (lineRef as unknown as () => Line)();
-            const wrapper = (this.branchWrappers[i] as unknown as () => Layout)();
-            
-            return all(
-                line.opacity(1, 0.1),
-                line.points([Vector2.zero, branchData[i].pos], 0.5, easeInOutCubic),
-                // Animate corresponding node wrapper
-                wrapper.opacity(1, 0.5),
-                wrapper.scale(1, 0.5, easeInOutCubic)
-            );
-        }));
-        
-        yield* waitUntil('cot_tree_done');
-
-        // --- 3. Summary ---
-        yield* waitUntil('start_reasoning_summary');
-        
-        // Fade out tree
-        yield* this.treeContainer().opacity(0, 0.5);
-        
-        // Fade in Summary
-        yield* this.summaryContainer().opacity(1, 0.5);
-        
-        for(const item of this.summaryItems) {
-            yield* item.opacity(1, 0.5);
+        yield* waitUntil("start_thinking_summary");
+        yield* all(
+            this.overlayBackdrop().opacity(0, 0.2),
+            this.summaryContainer().opacity(1, 0.4)
+        );
+        for (let i = 0; i < this.summaryItems.length; i++) {
+            yield* waitUntil(`thinking_summary_item_${i + 1}`);
+            const item = this.summaryItems[i];
+            yield* item.opacity(1, 0.4);
             yield* waitFor(0.2);
         }
-        
-        yield* waitFor(2);
+        yield* waitFor(1.2);
+
+        yield* waitUntil("thinking_summary_last_before_disappear");
+        yield* all(
+            this.summaryContainer().opacity(0, 0.3),
+            this.chatContainer().opacity(0, 0.3),
+            this.lineageContainer().opacity(0, 0.3),
+            this.overlayBackdrop().opacity(0, 0.3)
+        );
+        yield* this.recommendContainer().opacity(1, 0.3);
+        yield* waitFor(1.2);
+
+        yield* waitUntil("end_thinking");
     }
 }
 
 function makeRef<T>(arr: T[], index: number) {
-    return (el: T) => { arr[index] = el; }
+    return (el: T) => { arr[index] = el; };
 }
