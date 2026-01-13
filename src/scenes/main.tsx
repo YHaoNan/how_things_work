@@ -1,4 +1,4 @@
-import {makeScene2D, Circle, Rect, Txt} from '@motion-canvas/2d';
+import {makeScene2D, Circle, Rect, Txt, View2D} from '@motion-canvas/2d';
 import {createRef, easeInExpo, easeOutExpo, waitFor, ThreadGenerator, all, usePlayback} from '@motion-canvas/core';
 import {Colors} from '@src/common/colors';
 import {Director} from '@src/common/director';
@@ -47,28 +47,29 @@ function parseSRT(content: string): SubtitleItem[] {
 }
 
 // 播放字幕的生成器函数
-function* playSubtitles(view): ThreadGenerator {
+function* playSubtitles(view: View2D): ThreadGenerator {
   const subtitles = parseSRT(subtitleContent);
   const playback = usePlayback();
   
   // 创建字幕文本对象
-  const subtitleText = <Txt
-    text=""
-    fontSize={32}
-    fill="#ffffff"
-    position={[0, 450]}
-    opacity={0}
-    textAlign="center"
-    width={1200}
-    zIndex={1000}
-    shadowColor="rgba(0, 0, 0, 0.3)"
-    shadowBlur={2}
-    shadowOffsetX={1}
-    shadowOffsetY={1}
-  />;
-  
-  // 添加到视图
-  view.add(subtitleText);
+  const subtitleText = createRef<Txt>();
+  view.add(
+    <Txt
+      ref={subtitleText}
+      text=""
+      fontSize={32}
+      fill="#ffffff"
+      position={[0, 450]}
+      opacity={0}
+      textAlign="center"
+      width={1200}
+      zIndex={1000}
+      shadowColor="rgba(0, 0, 0, 0.3)"
+      shadowBlur={2}
+      shadowOffsetX={1}
+      shadowOffsetY={1}
+    />
+  );
   
   // 按时间顺序播放字幕
   for (const subtitle of subtitles) {
@@ -76,21 +77,21 @@ function* playSubtitles(view): ThreadGenerator {
     yield* waitFor(subtitle.startTime - playback.time);
     
     // 显示字幕
-    subtitleText.text(subtitle.text);
-    yield* subtitleText.opacity(1, 0.3);
+    subtitleText().text(subtitle.text);
+    yield* subtitleText().opacity(1, 0.3);
     
     // 等待到字幕结束时间
     yield* waitFor(subtitle.endTime - playback.time);
     
     // 隐藏字幕
-    yield* subtitleText.opacity(0, 0.3);
+    yield* subtitleText().opacity(0, 0.3);
   }
   
   // 移除字幕
-  subtitleText.remove();
+  subtitleText().remove();
 }
 
-export default makeScene2D(function* (view) {
+export default makeScene2D(function* (view: View2D) {
   view.fill(Colors.background);
 
   const director = new Director(view);

@@ -10,7 +10,7 @@ export default makeScene2D(function* (view) {
     const coin = createRef<Circle>();
     const fav = createRef<Circle>();
     const share = createRef<Circle>();
-    const follow = createRef<Layout>(); // Pill shape
+    const follow = createRef<Rect>(); // Pill shape
 
     // Refs for Reference Part
     const referenceLayout = createRef<Layout>();

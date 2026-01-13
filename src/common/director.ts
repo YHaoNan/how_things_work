@@ -1,7 +1,8 @@
 import { View2D } from "@motion-canvas/2d";
 import { ThreadGenerator, createSignal, SimpleSignal, waitFor, all, waitUntil } from "@motion-canvas/core";
 import { MindMapLayer } from "./mindmap";
-import { AnimLayer, Layer } from "./animLayer"; 
+import { AnimLayer } from "./animLayer";
+import { Layer } from "./layer";
 import { MindMapNode } from "./structs";
 import { Colors } from "./colors";
 

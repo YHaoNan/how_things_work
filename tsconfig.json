@@ -4,7 +4,8 @@
     "baseUrl": ".",
     "paths": {
       "@src/*": ["src/*"],
-      "@workspace/*": ["workspace/*"]
+      "@workspace/*": ["workspace/*"],
+      "@ws/*": ["workspace/*"]
     }
   },
   "include": ["src", "workspace"]

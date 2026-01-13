@@ -215,8 +215,6 @@ export class ChatLayer extends AnimLayer {
         )
     }
     
-    private summaryItems: Txt[] = [];
-
     protected *on_play(): ThreadGenerator {
         const streamHeight = 38 * 18 * 1.15 + 14 * 37;
         let streamRunning = true;

@@ -1,5 +1,5 @@
 import { Layout, Rect, Txt, Circle, Line, Img } from "@motion-canvas/2d";
-import { ThreadGenerator, createRef, all, sequence, waitFor, createSignal, easeInOutCubic, Vector2, waitUntil } from "@motion-canvas/core";
+import { ThreadGenerator, createRef, all, sequence, waitFor, createSignal, easeInOutCubic, easeOutCubic, Vector2, waitUntil } from "@motion-canvas/core";
 import { AnimLayer } from "@src/common/animLayer";
 import { Colors } from "@src/common/colors";
 
@@ -14,6 +14,9 @@ export class IntroNextTokenLayer extends AnimLayer {
     private chatBox = createRef<Layout>();
     private videoBox = createRef<Layout>();
     private codeBox = createRef<Layout>();
+
+    private titleBackdrop = createRef<Rect>();
+    private titleText = createRef<Txt>();
 
     protected on_build_ui(): void {
         this.root.add(
@@ -102,6 +105,27 @@ export class IntroNextTokenLayer extends AnimLayer {
                         <Rect width={220} height={10} fill={'#fff'} opacity={0.5} x={10} y={-20} radius={2} />
                     </Rect>
                 </Layout>
+
+                <Rect
+                    ref={this.titleBackdrop}
+                    width={1920}
+                    height={1080}
+                    fill={'rgba(0,0,0,0.65)'}
+                    opacity={0}
+                />
+                <Txt
+                    ref={this.titleText}
+                    text="好奇的事：LLM进化之路"
+                    y={0}
+                    fill={Colors.yellow}
+                    fontSize={120}
+                    fontFamily={'JetBrains Mono'}
+                    fontWeight={900}
+                    opacity={0}
+                    scale={2}
+                    shadowBlur={20}
+                    shadowColor={'rgba(0,0,0,0.8)'}
+                />
             </Layout>
         );
     }
@@ -238,5 +262,16 @@ export class IntroNextTokenLayer extends AnimLayer {
         yield* this.codeBox().opacity(1, 0.5);
         
         yield* waitUntil('end_intro');
+
+        yield* all(
+            this.titleBackdrop().opacity(1, 0.6),
+            this.titleText().opacity(1, 1),
+            this.titleText().scale(1, 1, easeOutCubic)
+        );
+        yield* waitFor(1.5);
+        yield* all(
+            this.titleBackdrop().opacity(0, 0.7),
+            this.titleText().opacity(0, 0.7),
+        );
     }
 }
