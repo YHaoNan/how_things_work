@@ -4,7 +4,7 @@
 
 ## TODO
 - 提示词优化迭代
-- 项目路径问题
+- [x] 项目路径问题
 - 基于BrowserUse构建MCP Server，提供视觉自动化校验，编译错误，挂起问题等自动解决
 - 接入视频生成tool
 
@@ -41,3 +41,8 @@ Scene(main.tsx)
    |- Specific Animation 2 Layer
 ```
 
+## 项目切换
+```bash
+npm run list           列出所有项目
+npm run cd <项目名>    切换到指定项目
+```
