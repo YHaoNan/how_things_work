@@ -23,175 +23,175 @@
     },
     {
       "name": "chat to ChatLayer 0",
-      "targetTime": 24.599999999999994
+      "targetTime": 27.799999999999994
     },
     {
       "name": "start_chat_deepseek",
-      "targetTime": 26.199999999999996
+      "targetTime": 29.399999999999995
     },
     {
       "name": "explain_deepseek_done",
-      "targetTime": 30.399999999999995
+      "targetTime": 33.599999999999994
     },
     {
       "name": "start_qwen_base",
-      "targetTime": 30.399999999999995
+      "targetTime": 33.599999999999994
     },
     {
       "name": "explain_base_done",
-      "targetTime": 33.699999999999996
+      "targetTime": 36.89999999999999
     },
     {
       "name": "start_few_shot",
-      "targetTime": 33.699999999999996
+      "targetTime": 36.89999999999999
     },
     {
       "name": "explain_few_shot_done",
-      "targetTime": 38.95
+      "targetTime": 42.15
     },
     {
       "name": "show_chat_data_stream",
-      "targetTime": 38.95
+      "targetTime": 42.15
     },
     {
       "name": "hide_chat_data_stream",
-      "targetTime": 41.6565087377898
+      "targetTime": 42.55
     },
     {
       "name": "start_summary",
-      "targetTime": 41.9565087377898
+      "targetTime": 42.849999999999994
     },
     {
       "name": "chat_summary_item_1",
-      "targetTime": 42.9565087377898
+      "targetTime": 43.849999999999994
     },
     {
       "name": "chat_summary_item_2",
-      "targetTime": 43.6565087377898
+      "targetTime": 44.55
     },
     {
       "name": "chat_summary_item_3",
-      "targetTime": 44.3565087377898
+      "targetTime": 45.25
     },
     {
       "name": "chat_summary_item_4",
-      "targetTime": 45.056508737789805
+      "targetTime": 45.95
     },
     {
       "name": "chat_summary_last_before_disappear",
-      "targetTime": 46.75650873778981
+      "targetTime": 47.650000000000006
     },
     {
       "name": "think to ThinkingLayer 1",
-      "targetTime": 50.25650873778981
+      "targetTime": 51.150000000000006
     },
     {
       "name": "start_thinking_chat",
-      "targetTime": 51.8565087377898
+      "targetTime": 52.75
     },
     {
       "name": "thinking_rabbit_wrong_question",
-      "targetTime": 52.6565087377898
+      "targetTime": 53.55
     },
     {
       "name": "thinking_rabbit_wrong_answer",
-      "targetTime": 54.0565087377898
+      "targetTime": 54.949999999999996
     },
     {
       "name": "thinking_expand_avatars",
-      "targetTime": 55.0565087377898
+      "targetTime": 55.949999999999996
     },
     {
       "name": "thinking_clear_chat",
-      "targetTime": 55.356508737789795
+      "targetTime": 55.949999999999996
     },
     {
       "name": "thinking_chain_example",
-      "targetTime": 55.606508737789795
+      "targetTime": 56.199999999999996
     },
     {
       "name": "thinking_rabbit_correct_answer",
-      "targetTime": 58.2065087377898
+      "targetTime": 58.8
     },
     {
       "name": "show_lineage",
-      "targetTime": 60.606508737789795
+      "targetTime": 61.199999999999996
     },
     {
       "name": "start_thinking_summary",
-      "targetTime": 65.30650873778978
+      "targetTime": 65.9
     },
     {
       "name": "thinking_summary_item_1",
-      "targetTime": 65.70650873778979
+      "targetTime": 66.30000000000001
     },
     {
       "name": "thinking_summary_item_2",
-      "targetTime": 66.3065087377898
+      "targetTime": 66.90000000000002
     },
     {
       "name": "thinking_summary_last_before_disappear",
-      "targetTime": 68.10650873778981
+      "targetTime": 68.70000000000003
     },
     {
       "name": "end_thinking",
-      "targetTime": 69.9065087377898
+      "targetTime": 70.50000000000003
     },
     {
       "name": "agent to AgentLayer 2",
-      "targetTime": 72.9065087377898
+      "targetTime": 73.50000000000003
     },
     {
       "name": "start_react_flow",
-      "targetTime": 74.5065087377898
+      "targetTime": 75.10000000000002
     },
     {
       "name": "agent_step_user",
-      "targetTime": 75.0065087377898
+      "targetTime": 75.60000000000002
     },
     {
       "name": "agent_step_think",
-      "targetTime": 77.0065087377898
+      "targetTime": 77.60000000000002
     },
     {
       "name": "agent_step_action",
-      "targetTime": 78.8065087377898
+      "targetTime": 79.40000000000002
     },
     {
       "name": "agent_step_call_tool",
-      "targetTime": 80.35650873778981
+      "targetTime": 80.95000000000003
     },
     {
       "name": "agent_step_tool_done",
-      "targetTime": 81.75650873778982
+      "targetTime": 82.35000000000004
     },
     {
       "name": "agent_step_observe",
-      "targetTime": 82.25650873778982
+      "targetTime": 82.85000000000004
     },
     {
       "name": "start_agent_summary",
-      "targetTime": 84.15650873778982
+      "targetTime": 84.75000000000004
     },
     {
       "name": "agent_summary_item_1",
-      "targetTime": 85.05650873778983
+      "targetTime": 85.65000000000005
     },
     {
       "name": "agent_summary_item_2",
-      "targetTime": 85.65650873778984
+      "targetTime": 86.25000000000006
     },
     {
       "name": "agent_summary_item_3",
-      "targetTime": 86.25650873778984
+      "targetTime": 86.85000000000007
     },
     {
       "name": "agent_summary_last_before_disappear",
-      "targetTime": 86.85650873778985
+      "targetTime": 87.45000000000007
     },
     {
       "name": "end_agent",
-      "targetTime": 87.35650873778985
+      "targetTime": 87.95000000000007
     }
   ],
   "seed": 3501867846

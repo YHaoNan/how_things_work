@@ -3,13 +3,15 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
+    "cd": "node scripts/switch-project.cjs",
+    "list": "node scripts/switch-project.cjs --list",
     "start": "vite",
     "serve": "vite",
     "build": "tsc && vite build"
   },
   "dependencies": {
-    "@motion-canvas/core": "^3.17.2",
     "@motion-canvas/2d": "^3.17.2",
+    "@motion-canvas/core": "^3.17.2",
     "@motion-canvas/ffmpeg": "^1.1.0"
   },
   "devDependencies": {

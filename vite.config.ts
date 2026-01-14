@@ -86,8 +86,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@src': path.resolve(__dirname, './src'),
-      '@workspace': path.resolve(__dirname, './workspace'),
-      '@ws': path.resolve(__dirname, './workspace'),
+      '@workspace': path.resolve(__dirname, './projects/ai_llm_evolution'),
+      '@ws': path.resolve(__dirname, './projects/ai_llm_evolution'),
     },
   },
   plugins: [

@@ -3,10 +3,16 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@src/*": ["src/*"],
-      "@workspace/*": ["workspace/*"],
-      "@ws/*": ["workspace/*"]
+      "@src/*": [
+        "src/*"
+      ],
+      "@ws/*": [
+        "projects/ai_llm_evolution/*"
+      ]
     }
   },
-  "include": ["src", "workspace"]
+  "include": [
+    "src",
+    "projects/ai_llm_evolution"
+  ]
 }
