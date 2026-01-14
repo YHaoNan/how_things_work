@@ -29,6 +29,12 @@ lerna-debug.log*
 .env.local
 .env.*.local
 
+# Python virtual environments
+.venv/
+venv/
+**/.venv/
+**/venv/
+
 # OS
 Thumbs.db
 

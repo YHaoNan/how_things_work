@@ -13,7 +13,7 @@ class McpApp:
     self.repo_root = repo_root
     self.dotenv = load_env(repo_root)
     self.env_keys = sorted(self.dotenv.keys())
-    self.tools = [VisionCheckTool(self.env_keys)]
+    self.tools = [VisionCheckTool(self.env_keys, repo_root)]
 
   def list_tools(self) -> List[Dict[str, Any]]:
     return [t.schema() for t in self.tools]
@@ -56,4 +56,3 @@ class McpApp:
       return make_response(req_id, {"ok": True})
 
     raise JsonRpcError(code=-32601, message=f"未知方法: {method}")
-

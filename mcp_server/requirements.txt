@@ -1,2 +1,2 @@
 langchain>=0.2.0
-
+pyppeteer>=2.0.0
