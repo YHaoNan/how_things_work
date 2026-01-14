@@ -3,6 +3,7 @@ import {getOrCreateVisualTestBridge} from './visualTestBridge';
 
 export type VisualTestPointOptions = {
   id?: string;
+  check?: unknown;
 };
 
 export function testPoint(name: string, options: VisualTestPointOptions = {}) {
@@ -15,5 +16,6 @@ export function testPoint(name: string, options: VisualTestPointOptions = {}) {
     frame: playback.frame,
     time: playback.time,
     scene: scene.name,
+    check: options.check,
   });
 }

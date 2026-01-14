@@ -2,196 +2,60 @@
   "version": 0,
   "timeEvents": [
     {
-      "name": "start_generation",
-      "targetTime": 1
+      "name": "chat_intro_start",
+      "targetTime": 0.5
     },
     {
-      "name": "show_chat",
-      "targetTime": 17.599999999999994
+      "name": "chat_intro_end",
+      "targetTime": 1.1
     },
     {
-      "name": "show_video",
-      "targetTime": 18.099999999999994
+      "name": "chat_user_typing_start",
+      "targetTime": 1.1
     },
     {
-      "name": "show_code",
-      "targetTime": 18.599999999999994
+      "name": "chat_user_typing_end",
+      "targetTime": 3.2
     },
     {
-      "name": "end_intro",
-      "targetTime": 19.099999999999994
+      "name": "chat_user_send_start",
+      "targetTime": 3.2
     },
     {
-      "name": "chat to ChatLayer 0",
-      "targetTime": 27.799999999999994
+      "name": "chat_user_send_end",
+      "targetTime": 3.75
     },
     {
-      "name": "start_chat_deepseek",
-      "targetTime": 29.399999999999995
+      "name": "chat_ai_thinking_start",
+      "targetTime": 3.75
     },
     {
-      "name": "explain_deepseek_done",
-      "targetTime": 33.599999999999994
+      "name": "chat_ai_thinking_end",
+      "targetTime": 5.509999999999997
     },
     {
-      "name": "start_qwen_base",
-      "targetTime": 33.599999999999994
+      "name": "chat_ai_reply_start",
+      "targetTime": 5.509999999999997
     },
     {
-      "name": "explain_base_done",
-      "targetTime": 36.89999999999999
+      "name": "chat_ai_reply_end",
+      "targetTime": 5.959999999999997
     },
     {
-      "name": "start_few_shot",
-      "targetTime": 36.89999999999999
+      "name": "chat_poem_generate_start",
+      "targetTime": 5.959999999999997
     },
     {
-      "name": "explain_few_shot_done",
-      "targetTime": 42.15
+      "name": "chat_poem_generate_end",
+      "targetTime": 9.059999999999997
     },
     {
-      "name": "show_chat_data_stream",
-      "targetTime": 42.15
+      "name": "chat_hold_start",
+      "targetTime": 9.059999999999997
     },
     {
-      "name": "hide_chat_data_stream",
-      "targetTime": 42.55
-    },
-    {
-      "name": "start_summary",
-      "targetTime": 42.849999999999994
-    },
-    {
-      "name": "chat_summary_item_1",
-      "targetTime": 43.849999999999994
-    },
-    {
-      "name": "chat_summary_item_2",
-      "targetTime": 44.55
-    },
-    {
-      "name": "chat_summary_item_3",
-      "targetTime": 45.25
-    },
-    {
-      "name": "chat_summary_item_4",
-      "targetTime": 45.95
-    },
-    {
-      "name": "chat_summary_last_before_disappear",
-      "targetTime": 47.650000000000006
-    },
-    {
-      "name": "think to ThinkingLayer 1",
-      "targetTime": 51.150000000000006
-    },
-    {
-      "name": "start_thinking_chat",
-      "targetTime": 52.75
-    },
-    {
-      "name": "thinking_rabbit_wrong_question",
-      "targetTime": 53.55
-    },
-    {
-      "name": "thinking_rabbit_wrong_answer",
-      "targetTime": 54.949999999999996
-    },
-    {
-      "name": "thinking_expand_avatars",
-      "targetTime": 55.949999999999996
-    },
-    {
-      "name": "thinking_clear_chat",
-      "targetTime": 55.949999999999996
-    },
-    {
-      "name": "thinking_chain_example",
-      "targetTime": 56.199999999999996
-    },
-    {
-      "name": "thinking_rabbit_correct_answer",
-      "targetTime": 58.8
-    },
-    {
-      "name": "show_lineage",
-      "targetTime": 61.199999999999996
-    },
-    {
-      "name": "start_thinking_summary",
-      "targetTime": 65.9
-    },
-    {
-      "name": "thinking_summary_item_1",
-      "targetTime": 66.30000000000001
-    },
-    {
-      "name": "thinking_summary_item_2",
-      "targetTime": 66.90000000000002
-    },
-    {
-      "name": "thinking_summary_last_before_disappear",
-      "targetTime": 68.70000000000003
-    },
-    {
-      "name": "end_thinking",
-      "targetTime": 70.50000000000003
-    },
-    {
-      "name": "agent to AgentLayer 2",
-      "targetTime": 73.50000000000003
-    },
-    {
-      "name": "start_react_flow",
-      "targetTime": 75.10000000000002
-    },
-    {
-      "name": "agent_step_user",
-      "targetTime": 75.60000000000002
-    },
-    {
-      "name": "agent_step_think",
-      "targetTime": 77.60000000000002
-    },
-    {
-      "name": "agent_step_action",
-      "targetTime": 79.40000000000002
-    },
-    {
-      "name": "agent_step_call_tool",
-      "targetTime": 80.95000000000003
-    },
-    {
-      "name": "agent_step_tool_done",
-      "targetTime": 82.35000000000004
-    },
-    {
-      "name": "agent_step_observe",
-      "targetTime": 82.85000000000004
-    },
-    {
-      "name": "start_agent_summary",
-      "targetTime": 84.75000000000004
-    },
-    {
-      "name": "agent_summary_item_1",
-      "targetTime": 85.65000000000005
-    },
-    {
-      "name": "agent_summary_item_2",
-      "targetTime": 86.25000000000006
-    },
-    {
-      "name": "agent_summary_item_3",
-      "targetTime": 86.85000000000007
-    },
-    {
-      "name": "agent_summary_last_before_disappear",
-      "targetTime": 87.45000000000007
-    },
-    {
-      "name": "end_agent",
-      "targetTime": 87.95000000000007
+      "name": "chat_hold_end",
+      "targetTime": 10.259999999999996
     }
   ],
   "seed": 3501867846

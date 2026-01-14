@@ -7,12 +7,12 @@
         "src/*"
       ],
       "@ws/*": [
-        "projects/ai_llm_evolution/*"
+        "projects/test_driven_proj/*"
       ]
     }
   },
   "include": [
     "src",
-    "projects/ai_llm_evolution"
+    "projects/test_driven_proj"
   ]
 }

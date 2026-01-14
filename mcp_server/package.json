@@ -1,0 +1,10 @@
+{
+  "name": "mcp",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "dependencies": {
+    "puppeteer": "^23.11.1"
+  }
+}
+

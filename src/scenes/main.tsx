@@ -96,7 +96,6 @@ export default makeScene2D(function* (view: View2D) {
   view.fill(Colors.background);
 
   const director = new Director(view);
-  testPoint('主场景-开始');
   
   // 并行运行主程序和字幕
   yield* all(
@@ -107,5 +106,4 @@ export default makeScene2D(function* (view: View2D) {
   // 3. Transition Out Animation
   // Cover the scene
   yield* waitFor(0.5); // Hold black/red for a moment
-  testPoint('主场景-结束');
 });

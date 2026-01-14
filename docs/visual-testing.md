@@ -22,6 +22,7 @@ testPoint('标题页-开始');
 - frame：帧号
 - time：秒
 - scene：所属场景名
+- check：要检查的内容（可为空，任意可序列化对象）
 
 ## 浏览器侧全局 API
 
@@ -65,4 +66,3 @@ for (const m of markers) {
 
 await browser.close();
 ```
-

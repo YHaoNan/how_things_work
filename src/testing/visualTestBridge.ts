@@ -6,6 +6,7 @@ export type VisualTestMarker = {
   frame: number;
   time: number;
   scene?: string;
+  check?: unknown;
 };
 
 export type VisualTestMarkerInput = Omit<VisualTestMarker, 'id'> & {id?: string};
@@ -89,6 +90,7 @@ export function getOrCreateVisualTestBridge(): VisualTestBridge {
         frame: input.frame,
         time: input.time,
         scene: input.scene,
+        check: input.check,
       };
       markerMap.set(key, marker);
       return marker;
