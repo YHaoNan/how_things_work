@@ -46,3 +46,9 @@ Scene(main.tsx)
 npm run list           列出所有项目
 npm run cd <项目名>    切换到指定项目
 ```
+
+## 测试框架
+1. 动画在稳定状态主动添加`testPoint`
+2. 框架通过`window.__MC_VISUAL_TEST__`来获得所有测试点，并逐一截图交给视觉引擎检查
+   1. `listMarker`列出所有测试点的名称、id、时间
+   2. `goto(id)`，跳转到指定测试点
