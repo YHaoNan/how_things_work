@@ -12,10 +12,6 @@ export default makeScene2D(function* (view) {
     const share = createRef<Circle>();
     const follow = createRef<Rect>(); // Pill shape
 
-    // Refs for Reference Part
-    const referenceLayout = createRef<Layout>();
-    const scrollContent = createRef<Layout>();
-    
     // Transition Overlay (In)
     const inOverlay = createRef<Circle>();
 
@@ -68,47 +64,6 @@ export default makeScene2D(function* (view) {
                          <Txt text={'+ 关注'} fontSize={40} fill={'#fff'} fontWeight={900} />
                     </Rect>
                 </Layout>
-            </Layout>
-
-            {/* Part 2: Reference */}
-            <Layout ref={referenceLayout} y={1080} opacity={0}>
-                <Txt 
-                    text={'参考资料 & 引用'} 
-                    y={-400} 
-                    fill={'#fff'} 
-                    fontSize={48} 
-                    fontFamily={'JetBrains Mono'} 
-                    fontWeight={700}
-                />
-                
-                {/* Scroll Container */}
-                <Rect width={1200} height={800} clip>
-                    <Layout ref={scrollContent} y={400}> 
-                         {/* Dummy List */}
-                         {[
-                            "1. Nvidia DLSS 2.0 Whitepaper",
-                            "2. AMD FidelityFX Super Resolution Architecture",
-                            "3. Real-Time Rendering 4th Edition",
-                            "4. Checkerboard Rendering for Real-Time Upscaling",
-                            "5. Motion Vectors in Temporal Anti-Aliasing",
-                            "6. Neural Networks for Image Super-Resolution",
-                            "7. Digital Foundry: Tech Analysis",
-                            "8. GDC 2021: Advanced Graphics Techniques",
-                            "9. Unreal Engine 5 Nanite & Lumen",
-                            "10. Wikipedia: Super-resolution imaging"
-                         ].map((item, i) => (
-                             <Txt 
-                                text={item} 
-                                y={i * 80} 
-                                fill={'#ccc'} 
-                                fontSize={32} 
-                                fontFamily={'JetBrains Mono'} 
-                                textAlign={'left'}
-                                width={1000}
-                             />
-                         ))}
-                    </Layout>
-                </Rect>
             </Layout>
 
         </Rect>
@@ -173,22 +128,4 @@ export default makeScene2D(function* (view) {
     yield* follow().scale(1, 0.2);
 
     yield* waitFor(1);
-
-    // 3. Transition to Reference
-    yield* all(
-        interactionLayout().y(-1080, 1, easeInOutCubic),
-        interactionLayout().opacity(0, 1),
-        referenceLayout().y(0, 1, easeInOutCubic),
-        referenceLayout().opacity(1, 1),
-    );
-
-    // 4. Scroll Reference
-    // Content height is approx 10 items * 80 = 800.
-    // Container is 800. Center is 0. 
-    // Content starts at y=400 (Top of content at 0).
-    // We want to scroll up so bottom of content is visible.
-    // Let's just scroll up by some amount.
-    yield* scrollContent().y(-200, 3, easeInOutCubic); // Slow scroll
-
-    yield* waitFor(2);
 });

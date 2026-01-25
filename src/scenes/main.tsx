@@ -36,11 +36,14 @@ function parseSRT(content: string): SubtitleItem[] {
     const startTime = parseInt(h1) * 3600 + parseInt(m1) * 60 + parseInt(s1) + parseInt(ms1) / 1000;
     const endTime = parseInt(h2) * 3600 + parseInt(m2) * 60 + parseInt(s2) + parseInt(ms2) / 1000;
 
+    // Remove trailing punctuation
+    const cleanText = text.replace(/[，。？！,?!.]$/, '');
+
     subtitles.push({
       id,
       startTime,
       endTime,
-      text
+      text: cleanText
     });
   }
 
@@ -64,7 +67,7 @@ function* playSubtitles(view: View2D): ThreadGenerator {
       opacity={0}
       textAlign="center"
       width={1200}
-      zIndex={1000}
+      zIndex={10000}
       shadowColor="rgba(0, 0, 0, 0.3)"
       shadowBlur={2}
       shadowOffsetX={1}
