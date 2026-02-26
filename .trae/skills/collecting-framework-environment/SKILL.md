@@ -20,7 +20,10 @@ projects          用户实际的项目目录
 |-- 项目文件夹2
 ```
 
+# The dir/files you don't need to pay attention to
+1. `dist`/`agent`/`mcp_server`/`docs`/`output`/`public`/`scripts`
+
 # Step by Step Instruction
-1. 仅当通用知识(.knowledge)无法满足你时，才需继续探索。关于通用知识，详见knowledge-summary技能
+1. 你可以利用或总结通用知识，详见knowledge-summary技能
 2. 阅读框架代码和示例项目，充分了解你要做什么
 3. 你可以将这个阶段获取到的所有知识压缩至框架根目录下的.knowledge文件夹中，以便后续直接查阅，详情请参考knowledge-summary技能

@@ -130,6 +130,62 @@ function updateViteConfig(repoRoot, projectRel) {
   if (next !== before) fs.writeFileSync(vitePath, next);
 }
 
+function linkMainMeta(repoRoot, projectAbsPath) {
+  const srcMetaPath = path.join(repoRoot, 'src', 'scenes', 'main.meta');
+  const projectMetaPath = path.join(projectAbsPath, 'main.meta');
+
+  // 1. Ensure project meta exists
+  if (!fileExists(projectMetaPath)) {
+    // If src meta is a real file, move it to project.
+    // Check if srcMeta exists and is NOT a symlink
+    if (fs.existsSync(srcMetaPath)) {
+      const stats = fs.lstatSync(srcMetaPath);
+      if (!stats.isSymbolicLink()) {
+        fs.renameSync(srcMetaPath, projectMetaPath);
+        console.log(`[Meta] 已迁移 main.meta 到项目目录`);
+      } else {
+        // It's a link, but pointing to nowhere (since projectMeta doesn't exist).
+        // Create new empty.
+        fs.writeFileSync(projectMetaPath, '{}');
+        console.log(`[Meta] 已创建新的 main.meta`);
+      }
+    } else {
+      fs.writeFileSync(projectMetaPath, '{}');
+      console.log(`[Meta] 已创建新的 main.meta`);
+    }
+  }
+
+  // 2. Remove src meta if exists (link or file)
+  if (fs.existsSync(srcMetaPath)) {
+    fs.unlinkSync(srcMetaPath);
+  }
+
+  // 3. Create symlink
+  try {
+    // Use relative path for portability if possible, or absolute.
+    // symlink(target, path) -> link at path points to target
+    const relTarget = path.relative(path.dirname(srcMetaPath), projectMetaPath);
+    fs.symlinkSync(relTarget, srcMetaPath);
+    console.log(`[Meta] 已链接 src/scenes/main.meta -> ${relTarget}`);
+  } catch (e) {
+    // Try Hard Link
+    try {
+      console.log(`[Meta] 软链接失败，尝试创建硬链接 (无需管理员权限)...`);
+      fs.linkSync(projectMetaPath, srcMetaPath);
+      console.log(`[Meta] 已创建硬链接 (修改将同步)`);
+    } catch (hardLinkErr) {
+       console.warn(`[Meta] 硬链接也失败了: ${hardLinkErr.message}`);
+       console.log(`[Meta] 尝试复制文件作为回退...`);
+       try {
+         fs.copyFileSync(projectMetaPath, srcMetaPath);
+         console.log(`[Meta] 已复制文件 (注意: 修改不会同步回项目)`);
+       } catch (ex) {
+         console.error(`[Meta] 复制也失败了: ${ex.message}`);
+       }
+    }
+  }
+}
+
 function printUsage() {
   console.log('用法: npm run cd -- <项目名>');
   console.log('      npm run cd:list');
@@ -172,6 +228,7 @@ function main() {
 
   const {projectRel} = updateTsconfig(repoRoot, projectAbsPath);
   updateViteConfig(repoRoot, projectRel);
+  linkMainMeta(repoRoot, projectAbsPath);
   console.log(`已切换 @ws -> ${projectRel}`);
 }
 

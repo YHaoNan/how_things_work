@@ -7,12 +7,12 @@
         "src/*"
       ],
       "@ws/*": [
-        "projects/ai_llm_evolution/*"
+        "projects/math_la_matrix_multiply/*"
       ]
     }
   },
   "include": [
     "src",
-    "projects/ai_llm_evolution"
+    "projects/math_la_matrix_multiply"
   ]
 }
