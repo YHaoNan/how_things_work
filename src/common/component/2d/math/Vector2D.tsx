@@ -1,42 +1,62 @@
 import { Layout, LayoutProps, Line, Circle } from '@motion-canvas/2d';
-import { Vector2, SimpleSignal } from '@motion-canvas/core';
+import { Vector2, SignalValue, SimpleSignal } from '@motion-canvas/core';
+import { initial, signal } from '@motion-canvas/2d/lib/decorators';
 import { Colors } from '../../../colors';
 
 export interface Vector2DProps extends LayoutProps {
-  from?: Vector2 | (() => Vector2);
-  to?: Vector2 | (() => Vector2);
-  color?: string;
-  lineWidth?: number;
-  headSize?: number;
-  showTail?: boolean;
+  from?: SignalValue<Vector2>;
+  to?: SignalValue<Vector2>;
+  color?: SignalValue<string>;
+  lineWidth?: SignalValue<number>;
+  headSize?: SignalValue<number>;
+  showTail?: SignalValue<boolean>;
 }
 
 export class Vector2D extends Layout {
-  constructor(props: Vector2DProps) {
-    const { from = new Vector2(0, 0), to = new Vector2(100, 0), color = Colors.green, lineWidth = 4, headSize = 20, showTail = true, ...rest } = props;
-    super(rest);
+  @initial(new Vector2(0, 0))
+  @signal()
+  public declare readonly from: SimpleSignal<Vector2, this>;
 
-    const getFrom = () => (typeof from === 'function' ? from() : from);
-    const getTo = () => (typeof to === 'function' ? to() : to);
+  @initial(new Vector2(100, 0))
+  @signal()
+  public declare readonly to: SimpleSignal<Vector2, this>;
+
+  @initial(Colors.green)
+  @signal()
+  public declare readonly color: SimpleSignal<string, this>;
+
+  @initial(4)
+  @signal()
+  public declare readonly lineWidth: SimpleSignal<number, this>;
+
+  @initial(20)
+  @signal()
+  public declare readonly headSize: SimpleSignal<number, this>;
+
+  @initial(true)
+  @signal()
+  public declare readonly showTail: SimpleSignal<boolean, this>;
+
+  constructor(props: Vector2DProps) {
+    super(props);
 
     this.add(
       <Line
-        points={() => [getFrom(), getTo()]}
-        stroke={color}
-        lineWidth={lineWidth}
+        points={() => [this.from(), this.to()]}
+        stroke={() => this.color()}
+        lineWidth={() => this.lineWidth()}
         endArrow
-        arrowSize={headSize}
+        arrowSize={() => this.headSize()}
       />
     );
 
-    if (showTail) {
-      this.add(
-        <Circle
-          position={() => getFrom()}
-          size={lineWidth * 2}
-          fill={color}
-        />
-      );
-    }
+    this.add(
+      <Circle
+        position={() => this.from()}
+        size={() => this.lineWidth() * 2}
+        fill={() => this.color()}
+        opacity={() => this.showTail() ? 1 : 0}
+      />
+    );
   }
 }

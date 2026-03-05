@@ -1,25 +1,35 @@
 import { Layout, LayoutProps, Txt, Rect } from '@motion-canvas/2d';
-import { SimpleSignal } from '@motion-canvas/core';
+import { SignalValue, SimpleSignal } from '@motion-canvas/core';
+import { initial, signal } from '@motion-canvas/2d/lib/decorators';
 import { Colors } from '../../../colors';
 
 export interface Matrix2DProps extends LayoutProps {
   data: (number | SimpleSignal<number>)[][];
-  color?: string;
+  bracketColor?: SignalValue<string>;
   columnColors?: string[];
   rowHighlights?: SimpleSignal<number>[];
-  fontSize?: number;
-  bracketWidth?: number;
+  fontSize?: SignalValue<number>;
+  bracketWidth?: SignalValue<number>;
 }
 
 export class Matrix2D extends Layout {
+  @initial(Colors.yellow)
+  @signal()
+  public declare readonly bracketColor: SimpleSignal<string, this>;
+
+  @initial(40)
+  @signal()
+  public declare readonly fontSize: SimpleSignal<number, this>;
+
+  @initial(4)
+  @signal()
+  public declare readonly bracketWidth: SimpleSignal<number, this>;
+
   constructor(props: Matrix2DProps) {
     const { 
       data, 
-      color = Colors.yellow, 
       columnColors = [], 
       rowHighlights = [],
-      fontSize = 40, 
-      bracketWidth = 4, 
       ...rest 
     } = props;
     super(rest);
@@ -35,8 +45,8 @@ export class Matrix2D extends Layout {
       <Rect
         width={totalWidth + 40}
         height={totalHeight + 20}
-        stroke={color}
-        lineWidth={bracketWidth}
+        stroke={() => this.bracketColor()}
+        lineWidth={() => this.bracketWidth()}
         radius={20}
       />
     );
@@ -65,7 +75,7 @@ export class Matrix2D extends Layout {
               return val.toFixed(0);
             }}
             fill={() => columnColors[j] || "#fff"}
-            fontSize={fontSize}
+            fontSize={() => this.fontSize()}
             x={j * cellWidth - (totalWidth - cellWidth) / 2}
             y={i * cellHeight - (totalHeight - cellHeight) / 2}
             fontFamily={"Consolas, monospace"}

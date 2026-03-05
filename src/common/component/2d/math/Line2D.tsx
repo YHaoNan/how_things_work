@@ -1,36 +1,46 @@
 import { Layout, LayoutProps, Line } from '@motion-canvas/2d';
-import { Vector2 } from '@motion-canvas/core';
+import { Vector2, SignalValue, SimpleSignal } from '@motion-canvas/core';
+import { initial, signal } from '@motion-canvas/2d/lib/decorators';
 import { Colors } from '../../../colors';
 
 export interface Line2DProps extends LayoutProps {
-  from?: Vector2 | (() => Vector2);
-  to?: Vector2 | (() => Vector2);
-  color?: string;
-  lineWidth?: number;
-  lineDash?: number[];
+  from?: SignalValue<Vector2>;
+  to?: SignalValue<Vector2>;
+  lineColor?: SignalValue<string>;
+  lineWidth?: SignalValue<number>;
+  lineDash?: SignalValue<number[]>;
 }
 
 export class Line2D extends Layout {
-  constructor(props: Line2DProps) {
-    const { 
-      from = new Vector2(0, 0), 
-      to = new Vector2(100, 0), 
-      color = Colors.orange, 
-      lineWidth = 4, 
-      lineDash,
-      ...rest 
-    } = props;
-    super(rest);
+  @initial(new Vector2(0, 0))
+  @signal()
+  public declare readonly from: SimpleSignal<Vector2, this>;
 
-    const getFrom = () => (typeof from === 'function' ? from() : from);
-    const getTo = () => (typeof to === 'function' ? to() : to);
+  @initial(new Vector2(100, 0))
+  @signal()
+  public declare readonly to: SimpleSignal<Vector2, this>;
+
+  @initial(Colors.orange)
+  @signal()
+  public declare readonly lineColor: SimpleSignal<string, this>;
+
+  @initial(4)
+  @signal()
+  public declare readonly lineWidth: SimpleSignal<number, this>;
+
+  @initial(null)
+  @signal()
+  public declare readonly lineDash: SimpleSignal<number[] | null, this>;
+
+  constructor(props: Line2DProps) {
+    super(props);
 
     this.add(
       <Line
-        points={() => [getFrom(), getTo()]}
-        stroke={color}
-        lineWidth={lineWidth}
-        lineDash={lineDash}
+        points={() => [this.from(), this.to()]}
+        stroke={() => this.lineColor()}
+        lineWidth={() => this.lineWidth()}
+        lineDash={() => this.lineDash()}
       />
     );
   }
