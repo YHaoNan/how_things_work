@@ -1,4 +1,4 @@
-import {Layout, LayoutProps, Latex} from '@motion-canvas/2d';
+import {Layout, LayoutProps, Latex, Txt} from '@motion-canvas/2d';
 import {SignalValue, SimpleSignal} from '@motion-canvas/core';
 import {initial, signal} from '@motion-canvas/2d/lib/decorators';
 
@@ -11,24 +11,42 @@ export interface LatexTextProps extends LayoutProps {
   tex?: SignalValue<string>;
   segments?: LatexSegment[];
   charColors?: SignalValue<string>[];
-  fill?: SignalValue<string>;
-  fontSize?: SignalValue<number>;
+  fontFill?: SignalValue<string>;
+  texFontSize?: SignalValue<number>;
+  isText?: boolean; // New prop to indicate if it's plain text (Chinese support)
 }
 
 export class LatexText extends Layout {
   @initial('#fff')
   @signal()
-  public declare readonly fill: SimpleSignal<string, this>;
+  public declare readonly fontFill: SimpleSignal<string, this>;
 
   @initial(32)
   @signal()
-  public declare readonly fontSize: SimpleSignal<number, this>;
+  public declare readonly texFontSize: SimpleSignal<number, this>;
+
+  @initial('')
+  @signal()
+  public declare readonly tex: SimpleSignal<string, this>;
+
+  private isText: boolean = false;
 
   constructor(props: LatexTextProps) {
-    const {tex, segments, charColors, fill = '#fff', fontSize = 32, ...rest} = props;
+    const {tex, segments, charColors, fontFill = '#fff', texFontSize = 32, isText = false, ...rest} = props;
     super(rest);
+    
+    this.isText = isText;
+
+    // Initialize tex signal if provided in props
+    if (tex) {
+        this.tex(tex);
+    }
+    // Initialize other signals
+    this.fontFill(fontFill);
+    this.texFontSize(texFontSize);
 
     const buildTex = () => {
+      // ... (rest of logic remains same, but using signals) ...
       if (segments && segments.length > 0) {
         return segments
           .map(seg => {
@@ -41,7 +59,8 @@ export class LatexText extends Layout {
           })
           .join('');
       }
-      const base = tex ? (typeof tex === 'function' ? tex() : tex) : '';
+      // Use the this.tex() signal instead of the prop directly
+      const base = this.tex();
       if (charColors && charColors.length > 0) {
         const chars = Array.from(base);
         return chars
@@ -61,12 +80,23 @@ export class LatexText extends Layout {
       return base;
     };
 
-    this.add(
-      <Latex
-        tex={() => buildTex()}
-        fill={() => this.fill()}
-        fontSize={() => this.fontSize()}
-      />,
-    );
+    if (this.isText) {
+        this.add(
+            <Txt
+                text={() => this.tex()} // Use tex signal as text source
+                fill={() => this.fontFill()}
+                fontSize={() => this.texFontSize()}
+                fontFamily={'JetBrains Mono'} // Or project default
+            />
+        );
+    } else {
+        this.add(
+          <Latex
+            tex={() => buildTex()}
+            fill={() => this.fontFill()}
+            fontSize={() => this.texFontSize()}
+          />,
+        );
+    }
   }
 }

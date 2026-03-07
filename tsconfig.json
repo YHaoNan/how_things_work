@@ -7,12 +7,12 @@
         "src/*"
       ],
       "@ws/*": [
-        "projects/math_la_matrix_multiply/*"
+        "projects/math_la_001_lc_and_space/*"
       ]
     }
   },
   "include": [
     "src",
-    "projects/math_la_matrix_multiply"
+    "projects/math_la_001_lc_and_space"
   ]
 }

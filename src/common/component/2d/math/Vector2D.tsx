@@ -1,5 +1,5 @@
 import { Layout, LayoutProps, Line, Circle } from '@motion-canvas/2d';
-import { Vector2, SignalValue, SimpleSignal } from '@motion-canvas/core';
+import { Vector2, SignalValue, SimpleSignal, createRef } from '@motion-canvas/core';
 import { initial, signal } from '@motion-canvas/2d/lib/decorators';
 import { Colors } from '../../../colors';
 
@@ -37,15 +37,19 @@ export class Vector2D extends Layout {
   @signal()
   public declare readonly showTail: SimpleSignal<boolean, this>;
 
+  private lineRef = createRef<Line>();
+
   constructor(props: Vector2DProps) {
     super(props);
 
     this.add(
       <Line
+        ref={this.lineRef}
         points={() => [this.from(), this.to()]}
         stroke={() => this.color()}
         lineWidth={() => this.lineWidth()}
         endArrow
+        end={0} // Start hidden
         arrowSize={() => this.headSize()}
       />
     );
@@ -58,5 +62,10 @@ export class Vector2D extends Layout {
         opacity={() => this.showTail() ? 1 : 0}
       />
     );
+  }
+
+  public *animateGrowth(duration: number = 1) {
+     this.lineRef().end(0); // Reset to 0 before animating
+     yield* this.lineRef().end(1, duration);
   }
 }

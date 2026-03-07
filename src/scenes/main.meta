@@ -1,5 +1,102 @@
 {
-  "version": 0,
-  "timeEvents": [],
-  "seed": 3501867846
+  "version": 1,
+  "timeEvents": [
+    {
+      "name": "title_shown",
+      "targetTime": 1.5
+    },
+    {
+      "name": "title_moved",
+      "targetTime": 2.5
+    },
+    {
+      "name": "subtitle_1_shown",
+      "targetTime": 3
+    },
+    {
+      "name": "subtitle_2_shown",
+      "targetTime": 3.5
+    },
+    {
+      "name": "subtitle_3_shown",
+      "targetTime": 4
+    },
+    {
+      "name": "intro_finished",
+      "targetTime": 6.5
+    },
+    {
+      "name": "grid_shown",
+      "targetTime": 8.5
+    },
+    {
+      "name": "vector_v_grown",
+      "targetTime": 9.5
+    },
+    {
+      "name": "vector_v_label_shown",
+      "targetTime": 19.284890330599453
+    },
+    {
+      "name": "ops_shown",
+      "targetTime": 26.47989446837538
+    },
+    {
+      "name": "ops_hidden",
+      "targetTime": 30.47989446837538
+    },
+    {
+      "name": "vector_w_shown",
+      "targetTime": 32.47989446837538
+    },
+    {
+      "name": "phantom_w_moved",
+      "targetTime": 34.47989446837538
+    },
+    {
+      "name": "vector_sum_shown",
+      "targetTime": 35.97989446837538
+    },
+    {
+      "name": "addition_finished",
+      "targetTime": 38.71885524789947
+    },
+    {
+      "name": "cleanup_done",
+      "targetTime": 39.21885524789947
+    },
+    {
+      "name": "scalar_shown",
+      "targetTime": 41.038587612864085
+    },
+    {
+      "name": "scalar_distributed",
+      "targetTime": 42.779806761484146
+    },
+    {
+      "name": "calculation_done",
+      "targetTime": 43.57980676148414
+    },
+    {
+      "name": "vector_scaled",
+      "targetTime": 45.632937898217904
+    },
+    {
+      "name": "lin_comb_setup",
+      "targetTime": 47.632937898217904
+    },
+    {
+      "name": "lin_comb_finished",
+      "targetTime": 52.632937898217904
+    },
+    {
+      "name": "vector_space_demo_finished",
+      "targetTime": 63.632937898217904
+    },
+    {
+      "name": "span_circle_demo_finished",
+      "targetTime": 77.1329378982179
+    }
+  ],
+  "seed": 270289852
 }
