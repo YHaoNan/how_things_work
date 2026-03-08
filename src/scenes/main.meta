@@ -94,8 +94,28 @@
       "targetTime": 63.632937898217904
     },
     {
-      "name": "span_circle_demo_finished",
-      "targetTime": 77.1329378982179
+      "name": "full_span_demo_finished",
+      "targetTime": 82.6329378982179
+    },
+    {
+      "name": "collinear_span_demo_finished",
+      "targetTime": 94.1329378982179
+    },
+    {
+      "name": "col_space_finished",
+      "targetTime": 103.6329378982179
+    },
+    {
+      "name": "row_space_finished",
+      "targetTime": 110.6329378982179
+    },
+    {
+      "name": "shopping_demo_finished",
+      "targetTime": 119.1329378982179
+    },
+    {
+      "name": "lora_demo_finished",
+      "targetTime": 126.1329378982179
     }
   ],
   "seed": 270289852

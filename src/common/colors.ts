@@ -6,4 +6,7 @@ export const Colors = {
   yellow: '#D9B257',
   blue: '#5794D9',
   green: '#61C28C',
+  cyan: '#4FC2C2',
+  purple: '#8C57D9',
+  text: '#ffffff',
 };
