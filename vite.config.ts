@@ -86,8 +86,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@src': path.resolve(__dirname, './src'),
-      '@workspace': path.resolve(__dirname, './projects/math_la_001_lc_and_space'),
-      '@ws': path.resolve(__dirname, './projects/math_la_001_lc_and_space'),
+      '@workspace': path.resolve(__dirname, './projects/math_la_003_elimination'),
+      '@ws': path.resolve(__dirname, './projects/math_la_003_elimination'),
     },
   },
   plugins: [

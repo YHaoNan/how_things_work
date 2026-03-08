@@ -9,6 +9,7 @@ export interface Line2DProps extends LayoutProps {
   lineColor?: SignalValue<string>;
   lineWidth?: SignalValue<number>;
   lineDash?: SignalValue<number[]>;
+  endArrow?: SignalValue<boolean>;
 }
 
 export class Line2D extends Layout {
@@ -28,9 +29,13 @@ export class Line2D extends Layout {
   @signal()
   public declare readonly lineWidth: SimpleSignal<number, this>;
 
-  @initial(null)
+  @initial([])
   @signal()
-  public declare readonly lineDash: SimpleSignal<number[] | null, this>;
+  public declare readonly lineDash: SimpleSignal<number[], this>;
+
+  @initial(false)
+  @signal()
+  public declare readonly endArrow: SimpleSignal<boolean, this>;
 
   constructor(props: Line2DProps) {
     super(props);
@@ -41,6 +46,7 @@ export class Line2D extends Layout {
         stroke={() => this.lineColor()}
         lineWidth={() => this.lineWidth()}
         lineDash={() => this.lineDash()}
+        endArrow={() => this.endArrow()}
       />
     );
   }

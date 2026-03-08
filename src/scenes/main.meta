@@ -1,122 +1,174 @@
 {
-  "version": 1,
+  "version": 0,
   "timeEvents": [
     {
-      "name": "title_shown",
+      "name": "Show Equations",
+      "targetTime": 0.5
+    },
+    {
+      "name": "Show Grid",
       "targetTime": 1.5
     },
     {
-      "name": "title_moved",
+      "name": "Draw Line 1",
       "targetTime": 2.5
     },
     {
-      "name": "subtitle_1_shown",
-      "targetTime": 3
-    },
-    {
-      "name": "subtitle_2_shown",
+      "name": "Show Point on Line 1",
       "targetTime": 3.5
     },
     {
-      "name": "subtitle_3_shown",
-      "targetTime": 4
+      "name": "Draw Line 2",
+      "targetTime": 6
     },
     {
-      "name": "intro_finished",
-      "targetTime": 6.5
+      "name": "Show Intersection",
+      "targetTime": 7
     },
     {
-      "name": "grid_shown",
-      "targetTime": 8.5
+      "name": "Scene 2 Start",
+      "targetTime": 9.1
     },
     {
-      "name": "vector_v_grown",
-      "targetTime": 9.5
+      "name": "Show Matrix Eq",
+      "targetTime": 10.1
     },
     {
-      "name": "vector_v_label_shown",
-      "targetTime": 19.284890330599453
+      "name": "Show Linear Comb Eq",
+      "targetTime": 11.1
     },
     {
-      "name": "ops_shown",
-      "targetTime": 26.47989446837538
+      "name": "Switch to Axes",
+      "targetTime": 12.1
     },
     {
-      "name": "ops_hidden",
-      "targetTime": 30.47989446837538
+      "name": "Render Vectors",
+      "targetTime": 13.1
     },
     {
-      "name": "vector_w_shown",
-      "targetTime": 32.47989446837538
+      "name": "Vectors Shown",
+      "targetTime": 15.1
     },
     {
-      "name": "phantom_w_moved",
-      "targetTime": 34.47989446837538
+      "name": "Render Result Vector",
+      "targetTime": 15.1
     },
     {
-      "name": "vector_sum_shown",
-      "targetTime": 35.97989446837538
+      "name": "Show Question",
+      "targetTime": 16.1
     },
     {
-      "name": "addition_finished",
-      "targetTime": 38.71885524789947
+      "name": "Show Matrix Eq (Gaussian)",
+      "targetTime": 18.1
     },
     {
-      "name": "cleanup_done",
-      "targetTime": 39.21885524789947
+      "name": "To Augmented Matrix",
+      "targetTime": 19.1
     },
     {
-      "name": "scalar_shown",
-      "targetTime": 41.038587612864085
+      "name": "Show Operation",
+      "targetTime": 19.6
     },
     {
-      "name": "scalar_distributed",
-      "targetTime": 42.779806761484146
+      "name": "Execute Elimination",
+      "targetTime": 20.1
     },
     {
-      "name": "calculation_done",
-      "targetTime": 43.57980676148414
+      "name": "Elimination Done",
+      "targetTime": 20.700000000000003
     },
     {
-      "name": "vector_scaled",
-      "targetTime": 45.632937898217904
+      "name": "Show Equations (Solve)",
+      "targetTime": 22.700000000000003
     },
     {
-      "name": "lin_comb_setup",
-      "targetTime": 47.632937898217904
+      "name": "Solve for Y",
+      "targetTime": 25.346851213104305
     },
     {
-      "name": "lin_comb_finished",
-      "targetTime": 52.632937898217904
+      "name": "Solve for X",
+      "targetTime": 27.985472659588115
     },
     {
-      "name": "vector_space_demo_finished",
-      "targetTime": 63.632937898217904
+      "name": "Show Result",
+      "targetTime": 30.085472659588117
     },
     {
-      "name": "full_span_demo_finished",
-      "targetTime": 82.6329378982179
+      "name": "Show 3D Eq",
+      "targetTime": 32.08547265958812
     },
     {
-      "name": "collinear_span_demo_finished",
-      "targetTime": 94.1329378982179
+      "name": "To Augmented Matrix (3D)",
+      "targetTime": 33.08547265958812
     },
     {
-      "name": "col_space_finished",
-      "targetTime": 103.6329378982179
+      "name": "Col 1 Elimination",
+      "targetTime": 33.58547265958812
     },
     {
-      "name": "row_space_finished",
-      "targetTime": 110.6329378982179
+      "name": "Col 2 Elimination",
+      "targetTime": 36.185472659588115
     },
     {
-      "name": "shopping_demo_finished",
-      "targetTime": 119.1329378982179
+      "name": "Back Substitution",
+      "targetTime": 38.78547265958811
     },
     {
-      "name": "lora_demo_finished",
-      "targetTime": 126.1329378982179
+      "name": "Solve z",
+      "targetTime": 40.78547265958811
+    },
+    {
+      "name": "Solve y",
+      "targetTime": 42.8854726595881
+    },
+    {
+      "name": "Solve x",
+      "targetTime": 44.9854726595881
+    },
+    {
+      "name": "Final Solution",
+      "targetTime": 41.78547265958811
+    },
+    {
+      "name": "Show Question (Elementary)",
+      "targetTime": 49.58547265958809
+    },
+    {
+      "name": "Show Matrices",
+      "targetTime": 50.58547265958809
+    },
+    {
+      "name": "Solve Row 1",
+      "targetTime": 53.08547265958809
+    },
+    {
+      "name": "Solve Row 2",
+      "targetTime": 56.185472659588086
+    },
+    {
+      "name": "Final E",
+      "targetTime": 58.78547265958808
+    },
+    {
+      "name": "Show Inverse Concept",
+      "targetTime": 61.28547265958808
+    },
+    {
+      "name": "Show Matrices A=LU",
+      "targetTime": 66.78547265958808
+    },
+    {
+      "name": "Solve InvE Row 1",
+      "targetTime": 68.78547265958808
+    },
+    {
+      "name": "Solve InvE Row 2",
+      "targetTime": 71.88547265958807
+    },
+    {
+      "name": "Final InvE",
+      "targetTime": 74.48547265958807
     }
   ],
-  "seed": 270289852
+  "seed": 258314537
 }
