@@ -1,0 +1,100 @@
+{
+  "id": "root",
+  "name": "LLM演进之路",
+  "color": "red",
+  "children": [
+    {
+      "id": "chat_ability",
+      "name": "获得Chat能力",
+      "color": "orange",
+      "children": [
+        {
+          "id": "chat_deepseek",
+          "name": "聊天特调：DeepSeek",
+          "color": "brown",
+          "children": []
+        },
+        {
+          "id": "chat_base_model",
+          "name": "Base模型：接词",
+          "color": "brown",
+          "children": []
+        },
+        {
+          "id": "chat_few_shot",
+          "name": "Few-shot：模仿对话轨迹",
+          "color": "brown",
+          "children": []
+        },
+        {
+          "id": "chat_data_injection",
+          "name": "训练数据：对话植入",
+          "color": "brown",
+          "children": []
+        },
+        {
+          "id": "chat_challenges",
+          "name": "产品复杂性",
+          "color": "brown",
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "reasoning_ability",
+      "name": "获得思考能力",
+      "color": "yellow",
+      "children": [
+        {
+          "id": "reasoning_cot_demo",
+          "name": "Few-shot CoT示例",
+          "color": "brown",
+          "children": []
+        },
+        {
+          "id": "reasoning_tech_tree",
+          "name": "思维链族谱",
+          "color": "brown",
+          "children": []
+        },
+        {
+          "id": "reasoning_challenges",
+          "name": "产品复杂性",
+          "color": "brown",
+          "children": []
+        },
+        {
+          "id": "reasoning_recommendation",
+          "name": "推荐视频：涌现之谜",
+          "color": "brown",
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "agent_ability",
+      "name": "获得接触外部世界的能力",
+      "color": "green",
+      "children": [
+        {
+          "id": "agent_react_flow",
+          "name": "ReAct工作流",
+          "color": "brown",
+          "children": []
+        },
+        {
+          "id": "agent_tuning",
+          "name": "轨迹训练：内化工具使用",
+          "color": "brown",
+          "children": []
+        },
+        {
+          "id": "agent_challenges",
+          "name": "产品复杂性",
+          "color": "brown",
+          "children": []
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "id": "root",
+  "name": "测试",
+  "color": "red",
+  "children": [
+    {
+      "id": "dialog",
+      "name": "对话场景",
+      "color": "orange",
+      "children": [
+        {
+          "id": "user_ask",
+          "name": "用户提问",
+          "color": "green",
+          "children": []
+        },
+        {
+          "id": "ai_reply",
+          "name": "AI回复",
+          "color": "yellow",
+          "children": []
+        },
+        {
+          "id": "poem",
+          "name": "生成古诗",
+          "color": "brown",
+          "children": []
+        }
+      ]
+    }
+  ]
+}

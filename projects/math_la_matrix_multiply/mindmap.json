@@ -1,0 +1,51 @@
+{
+  "id": "root",
+  "name": "矩阵乘法",
+  "color": "red",
+  "children": [
+    {
+      "id": "unit_vector",
+      "name": "单位向量",
+      "color": "orange",
+      "children": []
+    },
+    {
+      "id": "matrix_vector_mult",
+      "name": "矩阵乘向量",
+      "color": "yellow",
+      "children": [
+        {
+          "id": "dimension_magic",
+          "name": "维度的魔法",
+          "color": "brown",
+          "children": [
+            {
+              "id": "dimension_up",
+              "name": "升维/嵌入",
+              "color": "cyan",
+              "children": []
+            },
+            {
+              "id": "dimension_down",
+              "name": "降维/投影",
+              "color": "cyan",
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "matrix_matrix_mult",
+      "name": "矩阵乘矩阵",
+      "color": "green",
+      "children": []
+    },
+    {
+      "id": "matrix_mult_derivation",
+      "name": "矩阵乘法推导",
+      "color": "purple",
+      "children": []
+    }
+  ]
+}
